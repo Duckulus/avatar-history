@@ -14,7 +14,7 @@ export const AvatarsCommand: Command = {
       required: false,
     },
   ],
-  execute: async (interaction, _) => {
+  execute: async (interaction) => {
     const user = interaction.options.getUser("user");
     const userId = user ? user.id : interaction.user.id;
     const avatars = (await getAvatars())
