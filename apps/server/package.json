@@ -1,0 +1,20 @@
+{
+    "name": "@avatar-history/server",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc -b",
+        "start": "node ."
+    },
+    "devDependencies": {
+        "@avatar-history/discord": "*",
+        "typescript": "^4.7.4"
+    },
+    "dependencies": {
+        "@types/node-cron": "^3.0.2",
+        "@types/uuid": "^8.3.4",
+        "node-cron": "^3.0.1",
+        "uuid": "^8.3.2"
+    }
+}

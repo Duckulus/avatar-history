@@ -1,0 +1,16 @@
+{
+    "name": "@avatar-history/db",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "devDependencies": {
+        "typescript": "^4.7.4"
+    },
+    "dependencies": {
+        "@prisma/client": "^4.1.0",
+        "prisma": "^4.1.0"
+    }
+}

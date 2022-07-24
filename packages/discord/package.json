@@ -1,0 +1,19 @@
+{
+    "name": "@avatar-history/discord",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "dependencies": {
+        "@avatar-history/env": "*",
+        "@avatar-history/db": "*",
+        "@discordjs/rest": "^1.0.0",
+        "axios": "^0.27.2"
+    },
+    "devDependencies": {
+        "discord-api-types": "^0.36.3",
+        "typescript": "^4.7.4"
+    }
+}

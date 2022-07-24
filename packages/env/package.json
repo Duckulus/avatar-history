@@ -1,0 +1,15 @@
+{
+    "name": "@avatar-history/env",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "devDependencies": {
+        "typescript": "^4.7.4"
+    },
+    "dependencies": {
+        "dotenv": "^16.0.1"
+    }
+}

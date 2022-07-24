@@ -1,0 +1,8 @@
+{
+    "extends": "@avatar-history/tsconfig/base.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist"
+    },
+    "exclude": ["dist"]
+}
