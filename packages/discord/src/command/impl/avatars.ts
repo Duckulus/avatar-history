@@ -24,7 +24,9 @@ export const AvatarsCommand: Command = {
       })
       .join(" ");
     await interaction.reply({
-      content: avatars,
+      content: avatars
+        ? avatars
+        : "No avatars have been archived for this user yet! Try again later",
       ephemeral: true,
     });
   },
