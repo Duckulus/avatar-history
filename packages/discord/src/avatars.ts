@@ -31,7 +31,9 @@ const downloadAvatar = async (avatarId: string, userId: string) => {
     `../../static/avatars/${userId}/${avatarId}.png`
   );
   const response = await axios.get(
-    `https://cdn.discordapp.com/avatars/${userId}/${avatarId}.webp`,
+    rest.cdn.avatar(userId, avatarId, {
+      extension: "png",
+    }),
     { responseType: "stream" }
   );
   response.data.pipe(writer);

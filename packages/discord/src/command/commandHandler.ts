@@ -1,10 +1,12 @@
 import { CommandInteraction } from "discord.js";
 import { Command } from "./commandType";
 import { overwriteCommands } from "./applicationCommand";
+import { AvatarsCommand } from "./impl/avatars";
 
 const commands: Command[] = [];
 
 export const initCommands = async () => {
+  register(AvatarsCommand);
   await overwriteCommands(commands);
 };
 
