@@ -9,9 +9,11 @@
     "scripts": {
         "build": "turbo run build",
         "start": "turbo run start",
+        "deploy": "yarn db generate && yarn start",
         "dev": "turbo run dev --parallel",
         "lint": "turbo run lint",
-        "format": "prettier --write \"**/*.{ts,tsx,md}\""
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "db": "yarn workspace @avatar-history/db"
     },
     "devDependencies": {
         "@types/node": "^18.0.6",
