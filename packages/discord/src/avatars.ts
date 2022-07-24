@@ -28,7 +28,7 @@ const downloadAvatar = async (avatarId: string, userId: string) => {
     recursive: true,
   });
   const writer = fs.createWriteStream(
-    `../../static/avatars/${userId}/${avatarId}.webp`
+    `../../static/avatars/${userId}/${avatarId}.png`
   );
   const response = await axios.get(
     `https://cdn.discordapp.com/avatars/${userId}/${avatarId}.webp`,
