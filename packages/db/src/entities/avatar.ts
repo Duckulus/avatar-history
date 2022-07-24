@@ -11,7 +11,7 @@ export const getAvatars = async () => {
 
 export const createAvatar = async (id: string, userId: string) => {
   await createUser(userId);
-  return await prisma.avatar.create({
+  await prisma.avatar.create({
     data: {
       id: id,
       userId: userId,
