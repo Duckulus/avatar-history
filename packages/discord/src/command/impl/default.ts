@@ -44,6 +44,7 @@ export const DefaultAvatarsCommand: Command = {
       content: rest.cdn.defaultAvatar(
         interaction.options.get("variant")!.value as number
       ),
+      ephemeral: true,
     });
   },
 };

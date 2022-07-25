@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction } from "discord.js";
 import { Command } from "./commandType";
 import { overwriteCommands } from "./applicationCommand";
 import { AvatarsCommand } from "./impl/avatars";
@@ -12,7 +12,7 @@ export const initCommands = async () => {
   await overwriteCommands(commands);
 };
 
-export const handleCommand = (interaction: CommandInteraction) => {
+export const handleCommand = (interaction: ChatInputCommandInteraction) => {
   const command = commands.find((cmd) => cmd.name == interaction.commandName);
   if (command) {
     command.execute(interaction, interaction.command!);
