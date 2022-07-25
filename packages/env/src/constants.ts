@@ -10,3 +10,5 @@ export const GUILD_ID = process.env.GUILD_ID || "";
 
 export const CDN_PORT = process.env.CDN_PORT || 7777;
 export const CDN_URL = process.env.CDN_URL || "";
+
+export const PROD = (process.env.NODE_ENV || "").toLowerCase() === "prod";

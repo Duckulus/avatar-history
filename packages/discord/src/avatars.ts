@@ -4,6 +4,7 @@ import { GUILD_ID } from "@avatar-history/env";
 import * as fs from "fs";
 import axios from "axios";
 import { createAvatar, getAvatars } from "@avatar-history/db";
+import { logger } from "@avatar-history/logging";
 
 export const updateAvatars = async (limit: number) => {
   const members = await fetchMembers(limit);
@@ -16,7 +17,7 @@ export const updateAvatars = async (limit: number) => {
     const avatarId = user?.avatar;
 
     if (avatarId && (!newestAvatar || avatarId != newestAvatar.id)) {
-      console.log("Downloading " + user.username);
+      logger.info("Downloading " + user.username);
       await downloadAvatar(avatarId, user.id);
       await createAvatar(avatarId, user.id);
     }

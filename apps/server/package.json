@@ -8,10 +8,11 @@
         "start": "node ."
     },
     "devDependencies": {
-        "@avatar-history/discord": "*",
         "typescript": "^4.7.4"
     },
     "dependencies": {
+        "@avatar-history/discord": "*",
+        "@avatar-history/logging": "*",
         "@types/node-cron": "^3.0.2",
         "@types/uuid": "^8.3.4",
         "node-cron": "^3.0.1",

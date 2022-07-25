@@ -1,11 +1,12 @@
 import { createClient, updateAvatars } from "@avatar-history/discord";
 import cron from "node-cron";
+import { logger } from "@avatar-history/logging";
 
 const main = async () => {
   await createClient();
 
   cron.schedule("*/10 * * * * *", async () => {
-    console.log("Updating Avatars");
+    logger.debug("Updating Avatars");
     await updateAvatars(1000);
   });
 };

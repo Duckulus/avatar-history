@@ -8,6 +8,9 @@
     "references": [
         {
             "path": "../../packages/discord"
+        },
+        {
+            "path": "../../packages/logging"
         }
     ]
 }

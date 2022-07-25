@@ -1,19 +1,16 @@
 {
-    "name": "@avatar-history/cdn",
+    "name": "@avatar-history/logging",
     "version": "1.0.0",
     "main": "dist/index.js",
     "license": "MIT",
     "scripts": {
-        "build": "tsc -b",
-        "start": "node ."
+        "build": "tsc -b"
     },
     "devDependencies": {
         "typescript": "^4.7.4"
     },
     "dependencies": {
         "@avatar-history/env": "*",
-        "@avatar-history/logging": "*",
-        "@types/express": "^4.17.13",
-        "express": "^4.18.1"
+        "tslog": "^3.3.3"
     }
 }

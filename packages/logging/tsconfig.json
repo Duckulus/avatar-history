@@ -7,10 +7,7 @@
     "exclude": ["dist"],
     "references": [
         {
-            "path": "../../packages/env"
-        },
-        {
-            "path": "../../packages/logging"
+            "path": "../env"
         }
     ]
 }

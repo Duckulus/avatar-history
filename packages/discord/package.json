@@ -9,6 +9,7 @@
     "dependencies": {
         "@avatar-history/db": "*",
         "@avatar-history/env": "*",
+        "@avatar-history/logging": "*",
         "@discordjs/rest": "^1.0.0",
         "axios": "^0.27.2",
         "discord.js": "^14.0.3"
