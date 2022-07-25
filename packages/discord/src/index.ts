@@ -1,2 +1,2 @@
-export * from "./avatars";
-export { createClient } from "./client";
+export * from "./core/updater";
+export { createClient } from "./core/client";

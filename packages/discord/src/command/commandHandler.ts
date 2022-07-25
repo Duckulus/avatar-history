@@ -3,11 +3,13 @@ import { Command } from "./commandType";
 import { overwriteCommands } from "./applicationCommand";
 import { AvatarsCommand } from "./impl/avatars";
 import { DefaultAvatarsCommand } from "./impl/default";
+import { UsernamesCommand } from "./impl/usernames";
 
 const commands: Command[] = [];
 
 export const initCommands = async () => {
   register(AvatarsCommand);
+  register(UsernamesCommand);
   register(DefaultAvatarsCommand);
   await overwriteCommands(commands);
 };

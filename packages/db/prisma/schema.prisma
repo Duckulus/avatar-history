@@ -11,13 +11,22 @@ datasource db {
 }
 
 model User {
-  id     String   @id @unique
-  Avatar Avatar[]
+  id       String     @id @unique
+  Avatar   Avatar[]
+  Username Username[]
 }
 
 model Avatar {
   id        String   @id @unique
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model Username {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  value     String
   user      User     @relation(fields: [userId], references: [id])
   userId    String
 }

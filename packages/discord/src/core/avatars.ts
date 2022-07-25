@@ -1,13 +1,11 @@
-import { rest } from "./utils/rest";
-import { APIGuildMember, Routes } from "discord-api-types/v10";
-import { GUILD_ID } from "@avatar-history/env";
+import { rest } from "../utils/rest";
+import { APIGuildMember } from "discord-api-types/v10";
 import * as fs from "fs";
 import axios from "axios";
 import { createAvatar, getAvatars } from "@avatar-history/db";
 import { logger } from "@avatar-history/logging";
 
-export const updateAvatars = async (limit: number) => {
-  const members = await fetchMembers(limit);
+export const updateAvatars = async (members: APIGuildMember[]) => {
   const avatars = await getAvatars();
   for (const member of members) {
     const user = member.user!;
@@ -38,13 +36,4 @@ const downloadAvatar = async (avatarId: string, userId: string) => {
     { responseType: "stream" }
   );
   response.data.pipe(writer);
-};
-
-const fetchMembers = async (limit: number): Promise<APIGuildMember[]> => {
-  const query = new URLSearchParams();
-  query.set("limit", limit.toString());
-
-  return (await rest.get(Routes.guildMembers(GUILD_ID), {
-    query: query,
-  })) as APIGuildMember[];
 };

@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, Client } from "discord.js";
 import { DISCORD_TOKEN } from "@avatar-history/env";
-import { handleCommand, initCommands } from "./command/commandHandler";
+import { handleCommand, initCommands } from "../command/commandHandler";
 import { logger } from "@avatar-history/logging";
 
 export const client = new Client({ intents: [] });
