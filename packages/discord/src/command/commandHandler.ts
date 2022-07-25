@@ -19,13 +19,13 @@ export const handleCommand = (interaction: ChatInputCommandInteraction) => {
   const command = commands.find((cmd) => cmd.name == interaction.commandName);
   if (command) {
     logger.info(
-      `/${command.name} Command executed by 
-      ${interaction.user.tag}
-       with options: [${interaction.options.data
-         .map((option) => {
-           return `${option.name}: ${option.value}`;
-         })
-         .join(" ")}]`
+      `/${command.name} Command executed by ${
+        interaction.user.tag
+      } with options: [${interaction.options.data
+        .map((option) => {
+          return `${option.name}: ${option.value}`;
+        })
+        .join(" ")}]`
     );
     command.execute(interaction, interaction.command!);
   }
