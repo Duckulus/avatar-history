@@ -3,6 +3,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Avatar } from "@prisma/client";
+import Image from "next/image";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -28,9 +29,11 @@ const Home: NextPage = () => {
           {avatars.map((avatar, index) => {
             return (
               <li key={index}>
-                <img
+                <Image
                   src={`https://cdn.duckul.us/avatars/${avatar.userId}/${avatar.id}.png`}
                   alt={"avatar"}
+                  width={100}
+                  height={100}
                 />
               </li>
             );
