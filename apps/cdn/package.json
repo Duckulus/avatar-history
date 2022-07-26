@@ -5,7 +5,8 @@
     "license": "MIT",
     "scripts": {
         "build": "tsc -b",
-        "start": "node ."
+        "start": "node .",
+        "dev": "yarn start"
     },
     "devDependencies": {
         "typescript": "^4.7.4"
