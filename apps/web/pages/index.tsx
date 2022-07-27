@@ -11,7 +11,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (session) {
-      axios.get(`/api/avatars/${session.id}`).then((resp) => {
+      axios.get(`/api/avatars/`).then((resp) => {
         setAvatars(resp.data);
       });
     }

@@ -7,7 +7,7 @@ export const userExists = async (id: string) => {
 export const createUser = async (id: string) => {
   const user = await getUser(id);
   if (!user) {
-    return await prisma.user.create({
+    return await prisma.discordUser.create({
       data: {
         id: id,
       },
@@ -17,7 +17,7 @@ export const createUser = async (id: string) => {
 };
 
 export const getUser = async (id: string) => {
-  return await prisma.user.findFirst({
+  return await prisma.discordUser.findFirst({
     where: {
       id: id,
     },
