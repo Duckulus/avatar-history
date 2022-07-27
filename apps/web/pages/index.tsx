@@ -3,12 +3,14 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Avatar, Username } from "@prisma/client";
-import Image from "next/image";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
+import { NavBar, NavBarButton } from "../components/NavBar";
+import { Layout } from "../components/Layout";
+import { AvatarList } from "../components/AvatarList";
+import { UsernameList } from "../components/UsernameList";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
+  const [page, setPage] = useState("home");
   const [avatars, setAvatars] = useState([] as Avatar[]);
   const [usernames, setUsernames] = useState([] as Username[]);
 
@@ -23,57 +25,81 @@ const Home: NextPage = () => {
     }
   }, [session]);
 
-  if (session) {
-    return (
-      <>
-        <nav>
-          {" "}
-          Signed in as {session.user!.name} <br />
-          <button onClick={() => signOut()}>Sign out</button>
-        </nav>
-        <Tabs>
-          <TabList>
-            <Tab>Avatars</Tab>
-            <Tab>Usernames</Tab>
-          </TabList>
-
-          <TabPanel>
-            <ul className={"no-dot"}>
-              {avatars.map((avatar, index) => {
-                return (
-                  <li key={index}>
-                    <Image
-                      src={`https://cdn.duckul.us/avatars/${avatar.userId}/${avatar.id}.png`}
-                      alt={"avatar"}
-                      width={100}
-                      height={100}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          </TabPanel>
-          <TabPanel>
-            <ul className={"no-dot"}>
-              {usernames.map((username, index) => {
-                return (
-                  <li key={index}>
-                    <a>{username.value}</a>
-                  </li>
-                );
-              })}
-            </ul>
-          </TabPanel>
-        </Tabs>
-      </>
-    );
-  }
   return (
-    <>
-      {" "}
-      Not signed in <br />
-      <button onClick={() => signIn("discord")}>Sign in</button>
-    </>
+    <Layout>
+      <NavBar>
+        <NavBarButton
+          bold={page == "home"}
+          text={"Home"}
+          onClick={() => setPage("home")}
+        />
+        {session && session.user ? (
+          <>
+            <NavBarButton
+              bold={page == "avatars"}
+              text={"Avatars"}
+              onClick={() => setPage("avatars")}
+            />
+            <NavBarButton
+              bold={page == "usernames"}
+              text={"Usernames"}
+              onClick={() => setPage("usernames")}
+            />
+          </>
+        ) : (
+          <></>
+        )}
+
+        {session && session.user ? (
+          <NavBarButton
+            className={"right purple"}
+            bold={true}
+            text={"Sign Out"}
+            onClick={() => signOut()}
+          />
+        ) : (
+          <NavBarButton
+            className={"right purple"}
+            bold={true}
+            text={"Sign In"}
+            onClick={() => signIn("discord")}
+          />
+        )}
+      </NavBar>
+
+      <div className={"border p10"}>
+        {page == "home" ? (
+          session && session.user ? (
+            <>
+              <h2>Avatar History</h2>
+              <p>Welcome {session.user.name},</p>
+              This Webpage can be used to view your Discord Avatar and Username
+              History. Click the buttons in the bar at the top to get started!
+            </>
+          ) : (
+            <>
+              <h2>Avatar History</h2>
+              <p>Welcome,</p>
+
+              <p>
+                This Webpage can be used to view your Discord Avatar and
+                Username History.{" "}
+                <a className={"bold"} onClick={() => signIn("discord")}>
+                  Sign in
+                </a>{" "}
+                with your Discord Account to get started!
+              </p>
+            </>
+          )
+        ) : page == "avatars" ? (
+          <AvatarList avatars={avatars} />
+        ) : page == "usernames" ? (
+          <UsernameList usernames={usernames} />
+        ) : (
+          <></>
+        )}
+      </div>
+    </Layout>
   );
 };
 export default Home;
