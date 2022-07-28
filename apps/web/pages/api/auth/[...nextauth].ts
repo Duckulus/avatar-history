@@ -25,9 +25,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
-    async signOut({ session, token }) {
-      console.log(session);
-      console.log(token);
+    async signOut({ session }) {
       await prisma.account.deleteMany({
         where: {
           userId: session.userId as string,
