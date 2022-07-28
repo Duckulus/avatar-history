@@ -110,6 +110,7 @@ const Home: NextPage = () => {
                   to join!
                 </p>
               )}
+              <GitHubLink />
             </>
           ) : (
             <>
@@ -124,6 +125,7 @@ const Home: NextPage = () => {
                 </a>{" "}
                 with your Discord Account to get started!
               </p>
+              <GitHubLink />
             </>
           )
         ) : page == "avatars" ? (
@@ -133,18 +135,23 @@ const Home: NextPage = () => {
         ) : (
           <></>
         )}
-        <p>
-          You can check out the source code of this application at{" "}
-          <a
-            target={"_blank"}
-            rel={"noreferrer"}
-            href={"https://github.com/Duckulus/avatar-history"}
-          >
-            GitHub
-          </a>
-        </p>
       </div>
     </Layout>
   );
 };
 export default Home;
+
+function GitHubLink() {
+  return (
+    <p>
+      You can check out the source code of this application at{" "}
+      <a
+        target={"_blank"}
+        rel={"noreferrer"}
+        href={"https://github.com/Duckulus/avatar-history"}
+      >
+        GitHub
+      </a>
+    </p>
+  );
+}
