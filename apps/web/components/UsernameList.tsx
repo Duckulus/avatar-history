@@ -2,7 +2,7 @@ import { Username } from "@prisma/client";
 
 export function UsernameList({ usernames }: { usernames: Username[] }) {
   return (
-    <ul className={"no-dot"}>
+    <ol>
       {usernames.map((username, index) => {
         return (
           <li key={index}>
@@ -10,6 +10,6 @@ export function UsernameList({ usernames }: { usernames: Username[] }) {
           </li>
         );
       })}
-    </ul>
+    </ol>
   );
 }
