@@ -83,6 +83,7 @@ const Home: NextPage = () => {
       </NavBar>
 
       <div className={"border p10"}>
+        <GuildWarning inGuild={inGuild} />
         {page == "home" ? (
           session && session.user ? (
             <>
@@ -90,26 +91,6 @@ const Home: NextPage = () => {
               <p>Welcome {session.user.name},</p>
               This Webpage can be used to view your Discord Avatar and Username
               History. Click the buttons in the bar at the top to get started!
-              {inGuild == -1 && (
-                <p
-                  style={{
-                    color: "red",
-                    textDecoration: "underline",
-                  }}
-                >
-                  You are currently not in our Discord Server. Being in the
-                  Server is required to keep track of your Avatars and
-                  Usernames. Click{" "}
-                  <a
-                    rel={"noreferrer"}
-                    href={process.env.GUILD_INVITE}
-                    target={"_blank"}
-                  >
-                    here
-                  </a>{" "}
-                  to join!
-                </p>
-              )}
               <GitHubLink />
             </>
           ) : (
@@ -154,4 +135,26 @@ function GitHubLink() {
       </a>
     </p>
   );
+}
+
+function GuildWarning({ inGuild }: { inGuild: number }) {
+  if (inGuild == -1) {
+    return (
+      <p
+        style={{
+          color: "red",
+          textDecoration: "underline",
+        }}
+      >
+        You are currently not in our Discord Server. Being in the Server is
+        required to keep track of your Avatars and Usernames. Click{" "}
+        <a rel={"noreferrer"} href={process.env.GUILD_INVITE} target={"_blank"}>
+          here
+        </a>{" "}
+        to join!
+      </p>
+    );
+  } else {
+    return <></>;
+  }
 }
