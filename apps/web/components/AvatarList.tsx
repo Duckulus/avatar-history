@@ -5,7 +5,7 @@ export function AvatarList({ avatars }: { avatars: Avatar[] }) {
   return (
     <div className={"avatar-list"}>
       {avatars.map((avatar, index) => {
-        return <Avatar avatar={avatar} index={index} />;
+        return <Avatar key={index} avatar={avatar} index={index} />;
       })}
     </div>
   );
@@ -15,7 +15,7 @@ function Avatar({ avatar, index }: { avatar: Avatar; index: number }) {
   const url = `https://cdn.duckul.us/avatars/${avatar.userId}/${avatar.id}.png`;
   return (
     <div className={"avatar"}>
-      <a target={"_blank"} href={url}>
+      <a rel={"noreferrer"} target={"_blank"} href={url}>
         Avatar no. {index + 1}
       </a>
       <br />
