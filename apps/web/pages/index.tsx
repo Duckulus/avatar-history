@@ -91,7 +91,12 @@ const Home: NextPage = () => {
               This Webpage can be used to view your Discord Avatar and Username
               History. Click the buttons in the bar at the top to get started!
               {inGuild == -1 && (
-                <p>
+                <p
+                  style={{
+                    color: "red",
+                    textDecoration: "underline",
+                  }}
+                >
                   You are currently not in our Discord Server. Being in the
                   Server is required to keep track of your Avatars and
                   Usernames. Click{" "}
