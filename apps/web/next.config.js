@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     domains: ["cdn.duckul.us"],
   },
+  env: {
+    GUILD_ID: process.env.GUILD_ID,
+    GUILD_INVITE: process.env.GUILD_INVITE,
+  },
 };
 
 module.exports = nextConfig;

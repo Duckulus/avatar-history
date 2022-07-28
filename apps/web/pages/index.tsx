@@ -7,11 +7,13 @@ import { NavBar, NavBarButton } from "../components/NavBar";
 import { Layout } from "../components/Layout";
 import { AvatarList } from "../components/AvatarList";
 import { UsernameList } from "../components/UsernameList";
+import { APIGuild } from "discord-api-types/v10";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
   const [page, setPage] = useState("home");
   const [avatars, setAvatars] = useState([] as Avatar[]);
+  const [inGuild, setInGuild] = useState(0); // -1 not joined 1 joined 0 fetching TODO think of a better solution
   const [usernames, setUsernames] = useState([] as Username[]);
 
   useEffect(() => {
@@ -22,6 +24,19 @@ const Home: NextPage = () => {
       axios.get(`/api/usernames/`).then((resp) => {
         setUsernames(resp.data);
       });
+      if (inGuild == 0) {
+        setInGuild(-2);
+        axios.get(`/api/guilds/`).then((resp) => {
+          const guilds = resp.data as APIGuild[];
+          setInGuild(
+            !!guilds.filter((guild) => {
+              return guild.id == process.env.GUILD_ID;
+            })[0]
+              ? 1
+              : -1
+          );
+        });
+      }
     }
   }, [session]);
 
@@ -75,6 +90,21 @@ const Home: NextPage = () => {
               <p>Welcome {session.user.name},</p>
               This Webpage can be used to view your Discord Avatar and Username
               History. Click the buttons in the bar at the top to get started!
+              {inGuild == -1 && (
+                <p>
+                  You are currently not in our Discord Server. Being in the
+                  Server is required to keep track of your Avatars and
+                  Usernames. Click{" "}
+                  <a
+                    rel={"noreferrer"}
+                    href={process.env.GUILD_INVITE}
+                    target={"_blank"}
+                  >
+                    here
+                  </a>{" "}
+                  to join!
+                </p>
+              )}
             </>
           ) : (
             <>
