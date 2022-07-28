@@ -10,6 +10,11 @@ export const authOptions: NextAuthOptions = {
     DiscordProvider({
       clientId: process.env.DISCORD_APPLICATION_ID || "",
       clientSecret: process.env.DISCORD_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          scope: "identify email guilds",
+        },
+      },
     }),
   ],
   callbacks: {
@@ -17,6 +22,27 @@ export const authOptions: NextAuthOptions = {
       if (user) session.id = user.id;
       logger.debug(session);
       return session;
+    },
+  },
+  events: {
+    async signOut({ session, token }) {
+      console.log(session);
+      console.log(token);
+      await prisma.account.deleteMany({
+        where: {
+          userId: session.userId as string,
+        },
+      });
+      await prisma.session.deleteMany({
+        where: {
+          id: session.id as string,
+        },
+      });
+      await prisma.user.deleteMany({
+        where: {
+          id: session.userId as string,
+        },
+      });
     },
   },
   adapter: PrismaAdapter(prisma),
