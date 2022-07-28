@@ -128,6 +128,16 @@ const Home: NextPage = () => {
         ) : (
           <></>
         )}
+        <p>
+          You can check out the source code of this application at{" "}
+          <a
+            target={"_blank"}
+            rel={"noreferrer"}
+            href={"https://github.com/Duckulus/avatar-history"}
+          >
+            GitHub
+          </a>
+        </p>
       </div>
     </Layout>
   );
