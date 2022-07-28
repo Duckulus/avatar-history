@@ -5,6 +5,7 @@ import { AvatarsCommand } from "./impl/avatars";
 import { DefaultAvatarsCommand } from "./impl/default";
 import { UsernamesCommand } from "./impl/usernames";
 import { logger } from "@avatar-history/logging";
+import { InfoCommand } from "./impl/info";
 
 const commands: Command[] = [];
 
@@ -12,6 +13,7 @@ export const initCommands = async () => {
   register(AvatarsCommand);
   register(UsernamesCommand);
   register(DefaultAvatarsCommand);
+  register(InfoCommand);
   await overwriteCommands(commands);
 };
 
