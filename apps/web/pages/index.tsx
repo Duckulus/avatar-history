@@ -8,6 +8,7 @@ import { Layout } from "../components/Layout";
 import { AvatarList } from "../components/AvatarList";
 import { UsernameList } from "../components/UsernameList";
 import { APIGuild } from "discord-api-types/v10";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -15,6 +16,10 @@ const Home: NextPage = () => {
   const [avatars, setAvatars] = useState([] as Avatar[]);
   const [inGuild, setInGuild] = useState(0); // -1 not joined 1 joined 0 fetching TODO think of a better solution
   const [usernames, setUsernames] = useState([] as Username[]);
+
+  const [parent] = useAutoAnimate<HTMLDivElement>({
+    easing: "ease-in",
+  });
 
   useEffect(() => {
     if (session) {
@@ -82,15 +87,18 @@ const Home: NextPage = () => {
         )}
       </NavBar>
 
-      <div className={"border p10"}>
+      <div ref={parent} className={"border p10"}>
         <GuildWarning inGuild={inGuild} />
         {page == "home" ? (
           session && session.user ? (
             <>
               <h2>Avatar History</h2>
               <p>Welcome {session.user.name},</p>
-              This Webpage can be used to view your Discord Avatar and Username
-              History. Click the buttons in the bar at the top to get started!
+              <p>
+                This Webpage can be used to view your Discord Avatar and
+                Username History. Click the buttons in the bar at the top to get
+                started!
+              </p>
               <GitHubLink />
             </>
           ) : (
