@@ -118,7 +118,7 @@ const Home: NextPage = () => {
             </>
           )
         ) : page == "avatars" ? (
-          <AvatarList avatars={avatars} />
+          <AvatarList animate={parent} avatars={avatars} />
         ) : page == "usernames" ? (
           <UsernameList usernames={usernames} />
         ) : (
