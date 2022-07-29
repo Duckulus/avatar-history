@@ -24,25 +24,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  events: {
-    async signOut({ session }) {
-      await prisma.account.deleteMany({
-        where: {
-          userId: session.userId as string,
-        },
-      });
-      await prisma.session.deleteMany({
-        where: {
-          id: session.id as string,
-        },
-      });
-      await prisma.user.deleteMany({
-        where: {
-          id: session.userId as string,
-        },
-      });
-    },
-  },
   adapter: PrismaAdapter(prisma),
 };
 
