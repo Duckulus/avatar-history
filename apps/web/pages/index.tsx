@@ -21,14 +21,30 @@ const Home: NextPage = () => {
     easing: "ease-in",
   });
 
+  const fetchAvatars = () => {
+    axios.get(`/api/avatars/`).then((resp) => {
+      setAvatars(resp.data);
+    });
+  };
+
+  const fetchUsernames = () => {
+    axios.get(`/api/usernames/`).then((resp) => {
+      setUsernames(resp.data);
+    });
+  };
+
+  useEffect(() => {
+    setTimeout(fetchAvatars, 5000);
+  }, [avatars]);
+
+  useEffect(() => {
+    setTimeout(fetchUsernames, 5000);
+  }, [usernames]);
+
   useEffect(() => {
     if (session) {
-      axios.get(`/api/avatars/`).then((resp) => {
-        setAvatars(resp.data);
-      });
-      axios.get(`/api/usernames/`).then((resp) => {
-        setUsernames(resp.data);
-      });
+      fetchAvatars();
+      fetchUsernames();
       if (inGuild == 0) {
         setInGuild(-2);
         axios.get(`/api/guilds/`).then((resp) => {
@@ -118,7 +134,7 @@ const Home: NextPage = () => {
             </>
           )
         ) : page == "avatars" ? (
-          <AvatarList animate={parent} avatars={avatars} />
+          <AvatarList avatars={avatars} />
         ) : page == "usernames" ? (
           <UsernameList usernames={usernames} />
         ) : (

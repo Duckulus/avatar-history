@@ -1,16 +1,11 @@
 import { Avatar } from "@prisma/client";
-import Image from "next/image";
-import { LegacyRef } from "react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
-export function AvatarList({
-  avatars,
-  animate,
-}: {
-  avatars: Avatar[];
-  animate: LegacyRef<HTMLDivElement>;
-}) {
+export function AvatarList({ avatars }: { avatars: Avatar[] }) {
+  const [parent] = useAutoAnimate<HTMLDivElement>();
+
   return (
-    <div ref={animate} className={"avatar-list"}>
+    <div ref={parent} className={"avatar-list"}>
       {avatars.map((avatar, index) => {
         return <Avatar key={index} avatar={avatar} index={index} />;
       })}
@@ -30,7 +25,7 @@ function Avatar({ avatar, index }: { avatar: Avatar; index: number }) {
         <a>{new Date(avatar.createdAt).toDateString()}</a>
         <br />
 
-        <Image src={url} alt={"avatar"} width={100} height={100} />
+        <img src={url} alt={"avatar"} width={100} height={100} />
       </div>
     </div>
   );

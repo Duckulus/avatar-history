@@ -8,13 +8,18 @@ export default async function handler(
 ) {
   const account = await getAccount(req);
   if (account) {
-    res.json(
-      await getDiscord("/users/@me/guilds", {
-        headers: {
-          authorization: `Bearer ${account.access_token}`,
-        },
-      })
-    );
+    try {
+      res.json(
+        await getDiscord("/users/@me/guilds", {
+          headers: {
+            authorization: `Bearer ${account.access_token}`,
+          },
+        })
+      );
+    } catch (e) {
+      res.json([]);
+    }
+
     return;
   }
   res.status(400).json({
