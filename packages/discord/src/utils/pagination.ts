@@ -53,22 +53,22 @@ export class Pagination {
         return;
       }
       switch (interaction.customId) {
-        case "0":
+        case PaginationButton.FIRST:
           this.index = 0;
           break;
-        case "1":
+        case PaginationButton.PREVIOUS:
           if (this.index > 0) this.index--;
           break;
-        case "2":
+        case PaginationButton.STOP:
           await interaction.update({
             components: [],
           });
           collector.stop();
           return;
-        case "3":
+        case PaginationButton.NEXT:
           if (this.index < this.pages.length - 1) this.index++;
           break;
-        case "4":
+        case PaginationButton.LAST:
           this.index = this.pages.length - 1;
           break;
       }
@@ -85,29 +85,37 @@ export class Pagination {
     const nextDisabled = this.index >= this.pages.length - 1;
     return new ActionRowBuilder<ButtonBuilder>().addComponents([
       new ButtonBuilder()
-        .setCustomId("0")
+        .setCustomId(PaginationButton.FIRST)
         .setLabel("⏮️")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(previousDisabled),
       new ButtonBuilder()
-        .setCustomId("1")
+        .setCustomId(PaginationButton.PREVIOUS)
         .setLabel("◀️")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(previousDisabled),
       new ButtonBuilder()
-        .setCustomId("2")
+        .setCustomId(PaginationButton.STOP)
         .setLabel("⏹️")
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
-        .setCustomId("3")
+        .setCustomId(PaginationButton.NEXT)
         .setLabel("▶️")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(nextDisabled),
       new ButtonBuilder()
-        .setCustomId("4")
+        .setCustomId(PaginationButton.LAST)
         .setLabel("⏭️")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(nextDisabled),
     ]);
   }
+}
+
+enum PaginationButton {
+  FIRST = "0",
+  PREVIOUS = "1",
+  STOP = "2",
+  NEXT = "3",
+  LAST = "4",
 }
