@@ -1,9 +1,13 @@
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { Command } from "../commandType";
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+} from "discord-api-types/v10";
+import { SlashCommand } from "../commandType";
 import { rest } from "../../utils/rest";
 
-export const DefaultAvatarsCommand: Command = {
+export const DefaultAvatarsCommand: SlashCommand = {
   name: "default",
+  type: ApplicationCommandType.ChatInput,
   description: "Shows the default Discord Avatar",
   options: [
     {

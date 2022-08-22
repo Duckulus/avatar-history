@@ -1,9 +1,15 @@
-import { Command } from "../commandType";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { SlashCommand } from "../commandType";
+import {
+  ActionRowBuilder,
+  ApplicationCommandType,
+  ButtonBuilder,
+  ButtonStyle,
+} from "discord.js";
 import { WEB_URL } from "@avatar-history/env";
 
-export const InfoCommand: Command = {
+export const InfoCommand: SlashCommand = {
   name: "info",
+  type: ApplicationCommandType.ChatInput,
   description: "Displays infomation about me",
   options: [],
   execute: async (interaction) => {

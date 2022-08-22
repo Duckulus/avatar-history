@@ -2,13 +2,13 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ChatInputCommandInteraction,
+  CommandInteraction,
   EmbedBuilder,
   User,
 } from "discord.js";
 
 export class Pagination {
-  private interaction: ChatInputCommandInteraction;
+  private interaction: CommandInteraction;
   private readonly pages: EmbedBuilder[];
   private index: number;
   private readonly timeout: number;
@@ -16,7 +16,7 @@ export class Pagination {
   private readonly user: User;
 
   constructor(
-    interaction: ChatInputCommandInteraction,
+    interaction: CommandInteraction,
     pages: EmbedBuilder[],
     timeout: number = 60,
     ephermal: boolean = false
