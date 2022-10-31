@@ -13,7 +13,7 @@ export const updateAvatars = async (members: APIGuildMember[]) => {
       (avatar) => avatar.userId == user.id
     )[0];
     const avatarId = user?.avatar;
-
+    if (avatars.filter((a) => a.id == avatarId).length > 0) continue;
     if (avatarId && (!newestAvatar || avatarId != newestAvatar.id)) {
       logger.info("Downloading " + user.username);
       await downloadAvatar(avatarId, user.id);
