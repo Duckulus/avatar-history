@@ -28,8 +28,9 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signIn({ user, account }) {
-      if (user && adapter) {
+      if (user && adapter && account) {
         try {
+          // @ts-ignore
           const userFromDatabase = await adapter.getUser(user.id);
           if (userFromDatabase) {
             await prisma.account.update({
@@ -59,5 +60,11 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: adapter,
 };
+
+declare module "next-auth" {
+  interface Session {
+    id?: string
+  }
+}
 
 export default NextAuth(authOptions);

@@ -18,7 +18,7 @@ export class Pagination {
   constructor(
     interaction: CommandInteraction,
     pages: EmbedBuilder[],
-    timeout: number = 60,
+    timeout: number = 180,
     ephermal: boolean = false
   ) {
     this.interaction = interaction;
