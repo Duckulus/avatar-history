@@ -25,7 +25,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           sizes="16x16"
           href="/favicon-16x16.png"
         />
-        <title>Avatar History</title>
+        <title>Discord Avatar History - View old Profile Pictures and Usernames</title>
       </Head>
       <Component {...pageProps} />
     </SessionProvider>

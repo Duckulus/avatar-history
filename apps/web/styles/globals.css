@@ -1,5 +1,6 @@
 body {
     font-family: Arial, serif;
+    background: honeydew;
 }
 
 .no-dot {
@@ -19,6 +20,7 @@ body {
     margin-bottom: 10px;
     display: flex;
     flex-direction: row;
+    border-radius: 8px;
 }
 
 .border {

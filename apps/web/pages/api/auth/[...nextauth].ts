@@ -1,9 +1,7 @@
-import NextAuth from "next-auth";
+import NextAuth, {NextAuthOptions} from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "@avatar-history/db";
-import { NextAuthOptions } from "next-auth";
-import { logger } from "@avatar-history/logging";
+import {PrismaAdapter} from "@next-auth/prisma-adapter";
+import {prisma} from "@avatar-history/db";
 
 const adapter = PrismaAdapter(prisma);
 
@@ -20,14 +18,13 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async session({session, user}) {
       if (user) session.id = user.id;
-      logger.debug(session);
       return session;
     },
   },
   events: {
-    async signIn({ user, account }) {
+    async signIn({user, account}) {
       if (user && adapter && account) {
         try {
           // @ts-ignore
