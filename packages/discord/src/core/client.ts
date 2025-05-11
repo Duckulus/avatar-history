@@ -16,5 +16,9 @@ export const createClient = async () => {
     handleCommand(interaction as CommandInteraction);
   });
 
+  console.log()
+  console.log("t1: " + DISCORD_TOKEN)
+  console.log("t2: " + process.env.DISCORD_TOKEN)
+  console.log()
   await client.login(DISCORD_TOKEN);
 };

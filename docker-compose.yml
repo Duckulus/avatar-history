@@ -9,3 +9,4 @@ services:
       - ./packages/db/prisma/dev.db:/app/packages/db/prisma/dev.db
     ports:
       - "7777:7777"
+      - "3000:3000"
