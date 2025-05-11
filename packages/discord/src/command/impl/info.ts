@@ -1,11 +1,13 @@
 import { SlashCommand } from "../commandType";
 import {
   ActionRowBuilder,
-  ApplicationCommandType,
   ButtonBuilder,
   ButtonStyle,
 } from "discord.js";
 import { WEB_URL } from "@avatar-history/env";
+import {
+  ApplicationCommandType,
+} from "discord-api-types/v10";
 
 export const InfoCommand: SlashCommand = {
   name: "info",
