@@ -1,8 +1,13 @@
 import { Username } from "@prisma/client";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
+import {useEffect, useRef} from "react";
+import autoAnimate from "@formkit/auto-animate";
 
 export function UsernameList({ usernames }: { usernames: Username[] }) {
-  const [parent] = useAutoAnimate<HTMLOListElement>();
+  const parent = useRef(null);
+
+  useEffect(() => {
+    parent.current && autoAnimate(parent.current)
+  }, [parent]);
 
   return (
     <ol ref={parent}>

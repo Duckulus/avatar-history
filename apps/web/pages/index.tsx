@@ -1,7 +1,7 @@
 import type {NextPage} from "next";
 import {signIn, signOut, useSession} from "next-auth/react";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Avatar, Username} from "@prisma/client";
 import {NavBar, NavBarButton} from "../components/NavBar";
 import {Layout} from "../components/Layout";
@@ -9,6 +9,7 @@ import {AvatarList} from "../components/AvatarList";
 import {UsernameList} from "../components/UsernameList";
 import {APIGuild} from "discord-api-types/v10";
 import {useAutoAnimate} from "@formkit/auto-animate/react";
+import autoAnimate from "@formkit/auto-animate";
 
 const Home: NextPage = () => {
   const {data: session} = useSession();
@@ -17,9 +18,13 @@ const Home: NextPage = () => {
   const [inGuild, setInGuild] = useState(0); // -1 not joined 1 joined 0 fetching TODO think of a better solution
   const [usernames, setUsernames] = useState([] as Username[]);
 
-  const [parent] = useAutoAnimate<HTMLDivElement>({
-    easing: "ease-in",
-  });
+  const parent = useRef(null);
+
+  useEffect(() => {
+    parent.current && autoAnimate(parent.current, {
+      easing: "ease-in"
+    })
+  }, [parent]);
 
   const fetchAvatars = () => {
     if (session) {
@@ -52,6 +57,7 @@ const Home: NextPage = () => {
       if (inGuild == 0) {
         setInGuild(-2);
         axios.get(`/api/guilds/`).then((resp) => {
+          console.log(resp)
           const guilds = resp.data as APIGuild[];
           setInGuild(
               !!guilds.filter((guild) => {

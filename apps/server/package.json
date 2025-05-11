@@ -9,7 +9,7 @@
         "dev": "yarn start"
     },
     "devDependencies": {
-        "typescript": "^4.7.4"
+        "typescript": "^5.8.3"
     },
     "dependencies": {
         "@avatar-history/discord": "*",

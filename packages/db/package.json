@@ -8,7 +8,7 @@
         "generate": "prisma db push && prisma generate"
     },
     "devDependencies": {
-        "typescript": "^4.7.4"
+        "typescript": "^5.8.3"
     },
     "dependencies": {
         "@prisma/client": "^6.7.0",
