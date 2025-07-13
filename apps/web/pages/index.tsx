@@ -8,7 +8,6 @@ import {Layout} from "../components/Layout";
 import {AvatarList} from "../components/AvatarList";
 import {UsernameList} from "../components/UsernameList";
 import {APIGuild} from "discord-api-types/v10";
-import {useAutoAnimate} from "@formkit/auto-animate/react";
 import autoAnimate from "@formkit/auto-animate";
 
 const Home: NextPage = () => {
@@ -183,12 +182,13 @@ function GuildWarning({inGuild}: { inGuild: number }) {
               textDecoration: "underline",
             }}
         >
-          You are currently not in our Discord Server. Being in the Server is
-          required to keep track of your Avatars and Usernames. Click{" "}
-          <a rel={"noreferrer"} href={process.env.GUILD_INVITE} target={"_blank"}>
+          To ensure your Avatars and Usernames are properly tracked, please make sure you’ve joined our Discord Server.
+          If you’ve already joined, you can safely ignore this message.
+          Click{" "}
+          <a rel="noreferrer" href={process.env.GUILD_INVITE} target="_blank">
             here
           </a>{" "}
-          to join!
+          to join the server.
         </p>
     );
   } else {
