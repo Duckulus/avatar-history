@@ -10,13 +10,13 @@ export default function Document() {
           />
           <meta
               name="description"
-              content="View your full Discord Profile Picture & Username history in one place! Fast, easy, and open-source. Just log in and explore your profile timeline."
+              content="View your full Discord pfp and username history in one place! Fast, easy, and open-source. Just log in and explore your profile timeline."
           />
-          <meta name="keywords" content="Discord avatar history, Discord username history, Discord profile tracker, Discord Profile Pic History, Discord old profile pictures" />
+          <meta name="keywords" content="Discord pfp history, Discord avatar history, Discord username history, Discord profile tracker, Discord Profile Pic History, Discord old profile pictures" />
           <meta property="og:title" content="Discord Avatar History" />
           <meta
               property="og:description"
-              content="View your full Discord Profile Picture & username history in one place! Fast, easy, and open-source. Just log in and explore your profile timeline."
+              content="View your full Discord pfp and username history in one place! Fast, easy, and open-source. Just log in and explore your profile timeline."
           />
           <meta
               property="og:image"

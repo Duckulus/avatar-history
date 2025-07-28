@@ -141,7 +141,7 @@ const Home: NextPage = () => {
                 </>
                 )}
                 <p>
-                  This tool uses a Discord bot to track your avatar and username history. Just <a href={process.env.GUILD_INVITE} target="_blank" rel="noreferrer">join our server</a> and your changes will be recorded automatically!
+                  This tool uses a Discord bot to track your pfp and username history. Just <a href={process.env.GUILD_INVITE} target="_blank" rel="noreferrer">join our server</a> and your changes will be recorded automatically!
                 </p>
                 <GitHubLink/>
               </>
