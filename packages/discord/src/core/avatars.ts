@@ -32,6 +32,7 @@ const downloadAvatar = async (avatarId: string, userId: string) => {
   const response = await axios.get(
     rest.cdn.avatar(userId, avatarId, {
       extension: "png",
+      size: 4096
     }),
     { responseType: "stream" }
   );
