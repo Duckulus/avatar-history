@@ -143,6 +143,7 @@ const Home: NextPage = () => {
                 <p>
                   This tool uses a Discord bot to track your pfp and username history. Just <a href={process.env.GUILD_INVITE} target="_blank" rel="noreferrer">join our server</a> and your changes will be recorded automatically!
                 </p>
+                <p style={{color: "red"}}>Tracking begins the moment you join the server. Previous avatars and usernames are <i>not</i> stored or accessible. ⚠️</p>
                 <GitHubLink/>
               </>
           ) : page == "avatars" ? (
