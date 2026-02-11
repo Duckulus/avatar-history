@@ -10,8 +10,8 @@
         "@avatar-history/db": "*",
         "@avatar-history/env": "*",
         "@avatar-history/logging": "*",
-        "@discordjs/rest": "^1.0.0",
-        "axios": "1.8.2",
+        "@discordjs/rest": "^2.6.0",
+        "axios": "1.13.5",
         "discord.js": "^14.19.3"
     },
     "devDependencies": {

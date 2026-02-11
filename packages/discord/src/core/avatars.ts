@@ -1,9 +1,8 @@
-import { rest } from "../utils/rest";
-import { APIGuildMember } from "discord-api-types/v10";
+import {APIGuildMember} from "discord-api-types/v10";
 import * as fs from "fs";
 import axios from "axios";
-import { createAvatar, getAvatars } from "@avatar-history/db";
-import { logger } from "@avatar-history/logging";
+import {createAvatar, getAvatars} from "@avatar-history/db";
+import {logger} from "@avatar-history/logging";
 
 export const updateAvatars = async (members: APIGuildMember[]) => {
   const avatars = await getAvatars();
@@ -29,12 +28,13 @@ const downloadAvatar = async (avatarId: string, userId: string) => {
   const writer = fs.createWriteStream(
     `../../static/avatars/${userId}/${avatarId}.png`
   );
-  const response = await axios.get(
-    rest.cdn.avatar(userId, avatarId, {
-      extension: "png",
-      size: 4096
-    }),
-    { responseType: "stream" }
-  );
-  response.data.pipe(writer);
+  try {
+    let url = `https://cdn.discordapp.com/avatars/${userId}/${avatarId}.png?size=4096`
+    const response = await axios.get(
+        url, {responseType: "stream"}
+    );
+    response.data.pipe(writer);
+  } catch (err) {
+    logger.error(err);
+  }
 };
