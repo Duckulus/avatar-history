@@ -5,9 +5,9 @@ import { logger } from "@avatar-history/logging";
 const main = async () => {
   await createClient();
 
-  cron.schedule("*/10 * * * * *", async () => {
+  cron.schedule("*/30 * * * * *", async () => {
     logger.debug("Updating Data");
-    await update(1000);
+    await update();
   });
 };
 

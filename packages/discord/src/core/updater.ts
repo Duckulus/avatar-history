@@ -6,8 +6,8 @@ import { updateUsernames } from "./usernames";
 import { client } from "./client";
 import { getAvatars } from "@avatar-history/db";
 
-export const update = async (limit: number) => {
-  const members = await fetchMembers(limit);
+export const update = async () => {
+  const members = await fetchMembers();
   const avatars = await getAvatars();
   client.user!.setPresence({
     status: "online",
@@ -22,11 +22,22 @@ export const update = async (limit: number) => {
   await updateUsernames(members);
 };
 
-const fetchMembers = async (limit: number): Promise<APIGuildMember[]> => {
-  const query = new URLSearchParams();
-  query.set("limit", limit.toString());
+const fetchMembers = async (): Promise<APIGuildMember[]> => {
+  const LIMIT = 1000;
+  let batch: APIGuildMember[] = [];
+  const aggregated: APIGuildMember[] = []
+  do {
+    const query = new URLSearchParams();
+    query.set("limit", LIMIT.toString());
+    if (batch.length > 0) {
+      const lastId = batch[batch.length - 1]!.user!.id;
+      query.set("after", lastId)
+    }
 
-  return (await rest.get(Routes.guildMembers(GUILD_ID), {
-    query: query,
-  })) as APIGuildMember[];
+    batch = (await rest.get(Routes.guildMembers(GUILD_ID), {
+      query: query,
+    })) as APIGuildMember[];
+    aggregated.push(...batch);
+  } while (batch.length === LIMIT)
+  return aggregated;
 };
