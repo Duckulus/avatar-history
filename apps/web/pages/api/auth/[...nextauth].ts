@@ -10,6 +10,8 @@ export const authOptions: NextAuthOptions = {
     DiscordProvider({
       clientId: process.env.DISCORD_APPLICATION_ID || "",
       clientSecret: process.env.DISCORD_CLIENT_SECRET || "",
+      // Discord sends an `iss` param on the callback, which openid-client validates
+      issuer: "https://discord.com",
       authorization: {
         params: {
           scope: "identify guilds",
