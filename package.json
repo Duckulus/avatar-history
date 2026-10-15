@@ -16,14 +16,14 @@
         "db": "yarn workspace @avatar-history/db"
     },
     "devDependencies": {
-        "@types/node": "^18.0.6",
+        "@types/node": "^26.6.5",
         "eslint-config-custom": "*",
         "prettier": "latest",
         "turbo": "latest"
     },
     "engines": {
         "npm": ">=7.0.0",
-        "node": ">=14.0.0"
+        "node": ">=26.0.0"
     },
     "dependencies": {},
     "packageManager": "yarn@1.22.19"

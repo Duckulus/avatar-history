@@ -5,9 +5,8 @@ require("dotenv").config({
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
-    domains: ["cdn.duckul.us"],
+    remotePatterns: [{protocol: "https", hostname: "cdn.duckul.us"}],
   },
   env: {
     GUILD_ID: process.env.GUILD_ID,
