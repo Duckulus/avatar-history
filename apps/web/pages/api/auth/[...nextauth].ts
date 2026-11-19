@@ -1,7 +1,7 @@
 import NextAuth, {NextAuthOptions} from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 import {PrismaAdapter} from "@next-auth/prisma-adapter";
-import {prisma} from "@avatar-history/db";
+import {getRole, prisma, Role} from "@avatar-history/db";
 
 const adapter = PrismaAdapter(prisma);
 
@@ -21,7 +21,16 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({session, user}) {
-      if (user) session.id = user.id;
+      if (user) {
+        session.id = user.id;
+        const account = await prisma.account.findFirst({
+          where: {userId: user.id, provider: "discord"},
+        });
+        if (account) {
+          session.discordId = account.providerAccountId;
+          session.role = await getRole(account.providerAccountId);
+        }
+      }
       return session;
     },
   },
@@ -63,6 +72,8 @@ export const authOptions: NextAuthOptions = {
 declare module "next-auth" {
   interface Session {
     id?: string
+    discordId?: string
+    role?: Role
   }
 }
 

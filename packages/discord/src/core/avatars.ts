@@ -5,7 +5,7 @@ import {createAvatar, getAvatars} from "@avatar-history/db";
 import {logger} from "@avatar-history/logging";
 
 export const updateAvatars = async (members: APIGuildMember[]) => {
-  const avatars = await getAvatars();
+  const avatars = await getAvatars(true);
   for (const member of members) {
     const user = member.user!;
     const newestAvatar = avatars.filter(

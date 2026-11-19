@@ -1,0 +1,58 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+Backs up the Discord avatar and username history of all members of one Discord server (`GUILD_ID`). Avatars are downloaded to disk and served by a static CDN. Data lives in a local SQLite database. A Next.js site lets signed-in users view their own history, and a Discord bot offers slash and user-context commands.
+
+## Commands
+
+Yarn 1 workspaces + Turborepo, Node >= 26. Run everything from the repo root.
+
+```sh
+yarn                 # install
+yarn db generate     # prisma db push + prisma generate (required before first build and after schema changes)
+yarn build           # turbo build of all workspaces (packages build before dependents via ^build)
+yarn dev             # all apps in parallel
+yarn start           # build + start all apps (same as production)
+yarn deploy          # db generate + start (Docker entrypoint)
+yarn lint            # only apps/web defines lint (next lint)
+yarn format          # prettier
+yarn workspace <name> build   # e.g. @avatar-history/discord, web
+```
+
+There is no test suite. Verify changes with `yarn build` (tsc for packages, `next build` for web).
+
+Config comes from a single root `.env` (see `.env.sample`). Packages load it via `dotenv` with path `../../.env`, so processes must run with the workspace directory as cwd, which turbo/yarn workspace scripts do.
+
+## Architecture
+
+```
+apps/server   cron entrypoint: starts Discord bot, runs update() every 30s
+apps/cdn      express static server for ../../static on CDN_PORT
+apps/web      Next.js (pages router) + next-auth (Discord OAuth)
+packages/discord  bot client, slash commands, update/scrape logic
+packages/db       Prisma client + small entity helpers (getAvatars, createAvatar, ...)
+packages/env      env constants (reads root .env)
+packages/logging  tslog logger
+packages/tsconfig shared base tsconfig
+```
+
+Internal packages are consumed via their compiled `dist/` output (`main: dist/index.js`), so a package must be built before changes in it are visible to apps.
+
+**Update loop** (`packages/discord/src/core/updater.ts`): pages through guild members over REST (1000 per page, `after` cursor), sets bot presence, then `updateAvatars` and `updateUsernames` diff the members against the DB and record new entries. New avatars are downloaded from Discord's CDN to `static/avatars/<userId>/<avatarId>.png` (relative path `../../static`, shared with apps/cdn). Avatar rows use the Discord avatar hash as their primary key.
+
+**Bot commands** (`packages/discord/src/command/`): each command is a `SlashCommand` or `UserCommand` object in `impl/`, registered in `commandHandler.ts#initCommands`. On startup all application commands are overwritten globally via REST. Public avatar URLs are built with `utils/cdn.ts` (`https://${CDN_URL}/avatars/...`, so `CDN_URL` is a bare host).
+
+**Web**: next-auth with the Prisma adapter stores `User`/`Account`/`Session` in the same SQLite DB. API routes (`pages/api/*`) map the session to the Discord user id via `utils/id.ts#getDiscordId` (the `Account.providerAccountId`) and filter avatars/usernames by it. `/api/guilds` calls the Discord API with the stored OAuth access token (`guilds` scope). `next.config.js` exposes `GUILD_ID`, `GUILD_INVITE` and `GOOGLE_VERIFICATION_ID` to the client and whitelists `cdn.duckul.us` for `next/image`.
+
+**Admin panel** (`/admin`): roles are `superadmin` (hardcoded `SUPER_ADMIN_ID` in `packages/db/src/entities/admin.ts`), `admin` (rows in the `Admin` table, granted/revoked only by the super admin) and `user`. The next-auth `session` callback adds `discordId` and `role` to the session, so the role is re-evaluated on every request. Admin API routes under `pages/api/admin/` guard themselves with `utils/admin.ts#requireRole`; the client-side `AdminGate` is cosmetic only.
+
+**Soft delete**: `Avatar.deletedAt`/`deletedBy`. `getAvatars()` hides deleted avatars by default (website + bot); the updater must call `getAvatars(true)`, otherwise it would try to re-insert a hidden avatar and hit the primary key.
+
+**Database**: `packages/db/prisma/schema.prisma`, SQLite at `packages/db/prisma/dev.db`. Schema changes are applied with `prisma db push` (no migrations).
+
+## Deployment
+
+`Dockerfile` runs `yarn deploy`. `docker-compose.yml` mounts `./static` and the SQLite file and exposes ports 7777 (CDN) and 3000 (web). Every push to `master` builds and pushes a multi-arch image to Docker Hub (`.github/workflows/docker-deploy.yml`).

@@ -1,198 +1,201 @@
+/* eslint-disable @next/next/no-img-element */
 import type {NextPage} from "next";
-import {signIn, signOut, useSession} from "next-auth/react";
+import Link from "next/link";
+import {useRouter} from "next/router";
+import {signIn, useSession} from "next-auth/react";
 import axios from "axios";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {Avatar, Username} from "@prisma/client";
-import {NavBar, NavBarButton} from "../components/NavBar";
-import {Layout} from "../components/Layout";
-import {AvatarList} from "../components/AvatarList";
-import {UsernameList} from "../components/UsernameList";
 import {APIGuild} from "discord-api-types/v10";
-import autoAnimate from "@formkit/auto-animate";
+import {Layout, Panel} from "../components/Layout";
+import {AvatarGrid} from "../components/AvatarGrid";
+import {UsernameTimeline} from "../components/UsernameTimeline";
+import {avatarUrl} from "../utils/cdn";
+
+type Tab = "home" | "avatars" | "usernames";
+const POLL_INTERVAL = 10_000;
 
 const Home: NextPage = () => {
   const {data: session} = useSession();
-  const [page, setPage] = useState("home");
-  const [avatars, setAvatars] = useState([] as Avatar[]);
-  const [inGuild, setInGuild] = useState(0); // -1 not joined 1 joined 0 fetching TODO think of a better solution
-  const [usernames, setUsernames] = useState([] as Username[]);
+  const router = useRouter();
+  const [avatars, setAvatars] = useState<Avatar[]>([]);
+  const [usernames, setUsernames] = useState<Username[]>([]);
+  const [inGuild, setInGuild] = useState<boolean | null>(null);
 
-  const parent = useRef(null);
-
-  useEffect(() => {
-    parent.current && autoAnimate(parent.current, {
-      easing: "ease-in"
-    })
-  }, [parent]);
-
-  const fetchAvatars = () => {
-    if (session) {
-      axios.get(`/api/avatars/`).then((resp) => {
-        setAvatars(resp.data);
-      });
-    }
-  };
-
-  const fetchUsernames = () => {
-    if (session) {
-      axios.get(`/api/usernames/`).then((resp) => {
-        setUsernames(resp.data);
-      });
-    }
-  };
+  const requested = router.query.tab;
+  const tab: Tab =
+      session && (requested == "avatars" || requested == "usernames")
+          ? requested
+          : "home";
 
   useEffect(() => {
-    setTimeout(fetchAvatars, 5000);
-  }, [avatars]);
-
-  useEffect(() => {
-    setTimeout(fetchUsernames, 5000);
-  }, [usernames]);
-
-  useEffect(() => {
-    if (session) {
-      fetchAvatars();
-      fetchUsernames();
-      if (inGuild == 0) {
-        setInGuild(-2);
-        axios.get(`/api/guilds/`).then((resp) => {
-          console.log(resp)
-          const guilds = resp.data as APIGuild[];
-          setInGuild(
-              !!guilds.filter((guild) => {
-                return guild.id == process.env.GUILD_ID;
-              })[0]
-                  ? 1
-                  : -1
-          );
-        });
-      }
-    }
+    if (!session) return;
+    const fetchHistory = () => {
+      axios.get(`/api/avatars/`).then((resp) => setAvatars(resp.data));
+      axios.get(`/api/usernames/`).then((resp) => setUsernames(resp.data));
+    };
+    fetchHistory();
+    const interval = setInterval(fetchHistory, POLL_INTERVAL);
+    return () => clearInterval(interval);
   }, [session]);
 
+  useEffect(() => {
+    if (!session || inGuild != null) return;
+    axios.get(`/api/guilds/`).then((resp) => {
+      const guilds = resp.data as APIGuild[];
+      setInGuild(guilds.some((guild) => guild.id == process.env.GUILD_ID));
+    });
+  }, [session, inGuild]);
+
   return (
-      <Layout>
-        <NavBar>
-          <NavBarButton
-              bold={page == "home"}
-              text={"Home"}
-              onClick={() => setPage("home")}
-          />
-          {session && session.user ? (
+      <Layout active={tab}>
+        <Panel pageKey={tab}>
+          {inGuild == false && <GuildWarning/>}
+          {tab == "home" ? (
+              <HomeContent
+                  name={session?.user?.name ?? null}
+                  avatars={avatars}
+                  image={session?.user?.image ?? null}
+              />
+          ) : tab == "avatars" ? (
               <>
-                <NavBarButton
-                    bold={page == "avatars"}
-                    text={"Avatars"}
-                    onClick={() => setPage("avatars")}
-                />
-                <NavBarButton
-                    bold={page == "usernames"}
-                    text={"Usernames"}
-                    onClick={() => setPage("usernames")}
-                />
+                <div className={"section-head"}>
+                  <h2>Your <span className={"gradient-text"}>avatars</span></h2>
+                  <span className={"count"}>{avatars.length} archived</span>
+                </div>
+                <AvatarGrid avatars={avatars}/>
               </>
           ) : (
-              <></>
-          )}
-
-          {session && session.user ? (
-              <NavBarButton
-                  className={"right purple"}
-                  bold={true}
-                  text={"Sign Out"}
-                  onClick={() => signOut()}
-              />
-          ) : (
-              <NavBarButton
-                  className={"right purple"}
-                  bold={true}
-                  text={"Sign In"}
-                  onClick={() => signIn("discord")}
-              />
-          )}
-        </NavBar>
-
-        <div ref={parent} className={"border p10"}>
-          <GuildWarning inGuild={inGuild}/>
-          {page == "home" ? (
               <>
-                {session && session.user ? (
-                <>
-                  <h2>Avatar History</h2>
-                  <p>Welcome {session.user.name},</p>
-                  <p>
-                    This Webpage can be used to view your Discord Avatar and
-                    Username History. Click the buttons in the bar at the top to get
-                    started!
-                  </p>
-                </>
-                ) : (
-                <>
-                  <h2>Avatar History</h2>
-                  <p>Welcome,</p>
-
-                  <p>
-                    Easily explore your Discord avatar and username history - all in one place.{" "}
-                    <a className={"bold"} onClick={() => signIn("discord")}>
-                      Sign in
-                    </a>{" "}
-                    with your Discord Account to get started!
-                  </p>
-                </>
-                )}
-                <p>
-                  This tool uses a Discord bot to track your pfp and username history. Just <a href={process.env.GUILD_INVITE} target="_blank" rel="noreferrer">join our server</a> and your changes will be recorded automatically!
-                </p>
-                <p style={{color: "red"}}>Tracking begins the moment you join the server. Previous avatars and usernames are <i>not</i> stored or accessible. ⚠️</p>
-                <GitHubLink/>
+                <div className={"section-head"}>
+                  <h2>Your <span className={"gradient-text"}>usernames</span></h2>
+                  <span className={"count"}>{usernames.length} archived</span>
+                </div>
+                <UsernameTimeline usernames={usernames}/>
               </>
-          ) : page == "avatars" ? (
-              <AvatarList avatars={avatars}/>
-          ) : page == "usernames" ? (
-              <UsernameList usernames={usernames}/>
-          ) : (
-              <></>
           )}
-        </div>
+        </Panel>
       </Layout>
   );
 };
 export default Home;
 
-function GitHubLink() {
+function HomeContent({
+                       name,
+                       avatars,
+                       image,
+                     }: {
+  name: string | null;
+  avatars: Avatar[];
+  image: string | null;
+}) {
   return (
-      <p>
-        You can check out the source code of this application at{" "}
-        <a
-            target={"_blank"}
-            rel={"noreferrer"}
-            href={"https://github.com/Duckulus/avatar-history"}
-        >
-          GitHub
-        </a>
-      </p>
+      <>
+        <section className={"hero"}>
+          <div>
+            <span className={"eyebrow"}>Discord profile archive</span>
+            <h1>
+              {name ? <>Welcome back,<br/></> : <>Every face<br/>you&apos;ve </>}
+              <span className={"gradient-text"}>{name ?? "ever worn."}</span>
+            </h1>
+            <p className={"lead"}>
+              {name
+                  ? "Your profile timeline is waiting. Jump into your archived avatars and usernames using the bar above."
+                  : "Easily explore your Discord avatar and username history - all in one place. Sign in with Discord to get started."}
+            </p>
+            <div className={"hero-actions"}>
+              {name ? (
+                  <>
+                    <Link className={"btn btn-primary"} href={"/?tab=avatars"} shallow>View avatars</Link>
+                    <Link className={"btn"} href={"/?tab=usernames"} shallow>View usernames</Link>
+                  </>
+              ) : (
+                  <button className={"btn btn-primary"} onClick={() => signIn("discord")}>
+                    Sign in with Discord
+                  </button>
+              )}
+              <a className={"btn"} href={process.env.GUILD_INVITE} target={"_blank"} rel={"noreferrer"}>
+                Join the server ↗
+              </a>
+            </div>
+          </div>
+          <Orbit avatars={avatars} image={image}/>
+        </section>
+
+        <div className={"features"}>
+          <Feature i={0} icon={"🤖"} title={"Tracked automatically"}>
+            A Discord bot watches the server and records every new pfp and username.
+          </Feature>
+          <Feature i={1} icon={"🕰️"} title={"Your full timeline"}>
+            Browse every avatar in full resolution, ordered from newest to oldest.
+          </Feature>
+          <Feature i={2} icon={"🔓"} title={"Open source"}>
+            Check out the code on{" "}
+            <a target={"_blank"} rel={"noreferrer"} href={"https://github.com/Duckulus/avatar-history"}>
+              GitHub
+            </a>
+            .
+          </Feature>
+        </div>
+
+        <p className={"footnote"}>
+          ⚠️ Tracking begins the moment you join the server. Previous avatars and usernames are{" "}
+          <i>not</i> stored or accessible.
+        </p>
+      </>
   );
 }
 
-function GuildWarning({inGuild}: { inGuild: number }) {
-  if (inGuild == -1) {
-    return (
-        <p
-            style={{
-              color: "red",
-              textDecoration: "underline",
-            }}
-        >
-          To ensure your Avatars and Usernames are properly tracked, please make sure you’ve joined our Discord Server.
-          If you’ve already joined, you can safely ignore this message.
-          Click{" "}
-          <a rel="noreferrer" href={process.env.GUILD_INVITE} target="_blank">
-            here
-          </a>{" "}
-          to join the server.
+function Feature({
+                   i,
+                   icon,
+                   title,
+                   children,
+                 }: React.PropsWithChildren<{ i: number; icon: string; title: string }>) {
+  return (
+      <div className={"feature"} style={{"--i": i} as React.CSSProperties}>
+        <div className={"feature-icon"}>{icon}</div>
+        <h3>{title}</h3>
+        <p>{children}</p>
+      </div>
+  );
+}
+
+// Decorative orbit. Uses the user's own archived avatars when available.
+function Orbit({avatars, image}: { avatars: Avatar[]; image: string | null }) {
+  const shown = avatars.slice(0, 6);
+  const slots = shown.length > 0 ? shown.length : 5;
+  return (
+      <div className={"orbit"} aria-hidden>
+        <div className={"orbit-ring"}/>
+        <div className={"orbit-ring inner"}/>
+        <div className={"orbit-core"}>{image && <img src={image} alt={""} onError={(e) => (e.currentTarget.style.display = "none")}/>}</div>
+        {Array.from({length: slots}).map((_, i) => {
+          const avatar = shown[i];
+          const style = {
+            "--angle": `${(360 / slots) * i}deg`,
+            "--r": i % 2 == 0 ? "150%" : "105%",
+            background: avatar ? undefined : `hsl(${250 + i * 30} 90% 65%)`,
+          } as React.CSSProperties;
+          return (
+              <div key={i} className={"orbit-item"} style={style}>
+                {avatar && <img src={avatarUrl(avatar.userId, avatar.id)} alt={""}/>}
+              </div>
+          );
+        })}
+      </div>
+  );
+}
+
+function GuildWarning() {
+  return (
+      <div className={"callout danger"}>
+        <span>🚨</span>
+        <p>
+          To ensure your avatars and usernames are properly tracked, please make sure you&apos;ve joined
+          our Discord server. If you&apos;ve already joined, you can safely ignore this message.{" "}
+          <a rel="noreferrer" href={process.env.GUILD_INVITE} target="_blank">Join the server</a>
         </p>
-    );
-  } else {
-    return <></>;
-  }
+      </div>
+  );
 }
