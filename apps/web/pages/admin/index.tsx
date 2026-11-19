@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Panel } from "../../components/Layout";
 import { AdminGate } from "../../components/AdminGate";
 import { MiniAvatar } from "../../components/MiniAvatar";
@@ -27,16 +27,27 @@ interface AdminEntry {
   grantedBy?: string;
 }
 
-const PAGE_SIZE = 40;
-
 type SortKey = "recent" | "avatars" | "usernames" | "hidden";
 
-const SORTS: { key: SortKey; label: string; value: (u: UserOverview) => number }[] = [
-  { key: "recent", label: "Recent", value: (u) => u.lastSeenChange ?? 0 },
-  { key: "avatars", label: "Avatars", value: (u) => u.avatarCount },
-  { key: "usernames", label: "Names", value: (u) => u.usernameCount },
-  { key: "hidden", label: "Hidden", value: (u) => u.deletedAvatarCount },
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "recent", label: "Recent" },
+  { key: "avatars", label: "Avatars" },
+  { key: "usernames", label: "Names" },
+  { key: "hidden", label: "Hidden" },
 ];
+
+interface UserPage {
+  users: UserOverview[];
+  total: number;
+  pageSize: number;
+}
+
+interface Stats {
+  users: number;
+  avatars: number;
+  hidden: number;
+  usernames: number;
+}
 
 const AdminPage: NextPage = () => {
   const { data: session } = useSession();
@@ -74,9 +85,13 @@ const AdminPage: NextPage = () => {
 };
 export default AdminPage;
 
+// Search, sort and paging happen on the server; only one page is loaded at a time
 function Users() {
-  const [users, setUsers] = useState<UserOverview[] | null>(null);
+  const [result, setResult] = useState<UserPage | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [page, setPage] = useState(0);
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({
     key: "recent",
@@ -84,40 +99,55 @@ function Users() {
   });
 
   useEffect(() => {
-    axios.get("/api/admin/users").then((resp) => setUsers(resp.data));
-  }, []);
+    const timeout = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(timeout);
+  }, [query]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const matches = (users ?? []).filter(
-      (u) => !q || u.id.includes(q) || (u.username ?? "").toLowerCase().includes(q)
-    );
-    // the api returns users by recent activity and sort is stable, so ties stay in that order
-    const value = SORTS.find((s) => s.key == sort.key)!.value;
-    return matches.sort((a, b) => (sort.desc ? value(b) - value(a) : value(a) - value(b)));
-  }, [users, query, sort]);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    axios
+      .get("/api/admin/users", {
+        params: {
+          page,
+          q: debouncedQuery,
+          sort: sort.key,
+          dir: sort.desc ? "desc" : "asc",
+          stats: stats ? undefined : 1,
+        },
+      })
+      .then((resp) => {
+        if (cancelled) return;
+        setResult(resp.data);
+        if (resp.data.stats) setStats(resp.data.stats);
+      })
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+    // stats are only requested once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, debouncedQuery, sort]);
 
   const changeSort = (key: SortKey) => {
     setSort((s) => (s.key == key ? { key, desc: !s.desc } : { key, desc: true }));
     setPage(0);
   };
 
-  if (!users) return <div className={"spinner"} />;
+  if (!result) return <div className={"spinner"} />;
 
-  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const current = Math.min(page, pages - 1);
-  const visible = filtered.slice(current * PAGE_SIZE, (current + 1) * PAGE_SIZE);
-  const sum = (key: keyof UserOverview) =>
-    users.reduce((total, u) => total + (u[key] as number), 0);
+  const pages = Math.max(1, Math.ceil(result.total / result.pageSize));
 
   return (
     <>
-      <div className={"stats"}>
-        <Stat i={0} value={users.length} label={"tracked users"} />
-        <Stat i={1} value={sum("avatarCount")} label={"visible avatars"} />
-        <Stat i={2} value={sum("deletedAvatarCount")} label={"hidden avatars"} />
-        <Stat i={3} value={sum("usernameCount")} label={"usernames"} />
-      </div>
+      {stats && (
+        <div className={"stats"}>
+          <Stat i={0} value={stats.users} label={"tracked users"} />
+          <Stat i={1} value={stats.avatars} label={"visible avatars"} />
+          <Stat i={2} value={stats.hidden} label={"hidden avatars"} />
+          <Stat i={3} value={stats.usernames} label={"usernames"} />
+        </div>
+      )}
       <div className={"toolbar"}>
         <input
           className={"input"}
@@ -143,14 +173,17 @@ function Users() {
           ))}
         </div>
       </div>
-      {visible.length == 0 ? (
+      {result.users.length == 0 ? (
         <div className={"empty"}>
           <span className={"empty-icon"}>🔍</span>
-          No users match &quot;{query}&quot;.
+          No users match &quot;{debouncedQuery}&quot;.
         </div>
       ) : (
-        <div className={"user-rows"} key={`${current}-${query}-${sort.key}-${sort.desc}`}>
-          {visible.map((user, i) => (
+        <div
+          className={"user-rows" + (loading ? " is-loading" : "")}
+          key={`${page}-${debouncedQuery}-${sort.key}-${sort.desc}`}
+        >
+          {result.users.map((user, i) => (
             <Link
               key={user.id}
               href={`/admin/users/${user.id}`}
@@ -177,18 +210,18 @@ function Users() {
         <div className={"pager"}>
           <button
             className={"btn btn-small"}
-            disabled={current == 0}
-            onClick={() => setPage(current - 1)}
+            disabled={page == 0 || loading}
+            onClick={() => setPage(page - 1)}
           >
             ← Prev
           </button>
           <span>
-            {current + 1} / {pages}
+            {page + 1} / {pages} · {result.total.toLocaleString()} users
           </span>
           <button
             className={"btn btn-small"}
-            disabled={current >= pages - 1}
-            onClick={() => setPage(current + 1)}
+            disabled={page >= pages - 1 || loading}
+            onClick={() => setPage(page + 1)}
           >
             Next →
           </button>

@@ -155,9 +155,21 @@ button {
     background: var(--surface);
     border-radius: var(--radius);
     padding: clamp(20px, 4vw, 40px);
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
+    isolation: isolate;
+}
+
+/* the blur lives on a pseudo element: backdrop-filter on .panel itself would make it
+   the containing block for position: fixed children like the lightbox */
+.panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
 }
 
 /* gradient hairline border */
@@ -175,7 +187,9 @@ button {
 }
 
 .page-enter {
-    animation: page-in 0.6s var(--ease-out) both;
+    /* backwards, not both: a filled transform/filter animation keeps the panel a
+       containing block for position: fixed children (the lightbox) */
+    animation: page-in 0.6s var(--ease-out) backwards;
 }
 
 @keyframes page-in {
@@ -1008,6 +1022,11 @@ a.user-row:hover {
     transform: translateX(4px);
     background: var(--surface-strong);
     border-color: rgba(255, 255, 255, 0.22);
+}
+
+.user-rows.is-loading {
+    opacity: 0.5;
+    transition: opacity 0.2s;
 }
 
 .user-row .mini-avatar {
