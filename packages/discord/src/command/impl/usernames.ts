@@ -3,7 +3,7 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
 } from "discord-api-types/v10";
-import { getUsernames } from "@avatar-history/db";
+import { getUsernamesOfUser } from "@avatar-history/db";
 import {
   CommandInteraction,
   EmbedBuilder,
@@ -43,9 +43,7 @@ const sendUsernameEmbed = async (
   interaction: CommandInteraction,
   user: User
 ) => {
-  const usernames = (await getUsernames()).filter(
-    (avatar) => avatar.userId == user.id
-  );
+  const usernames = await getUsernamesOfUser(user.id);
   if (usernames.length == 0) {
     await interaction.reply({
       content:

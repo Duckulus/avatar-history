@@ -1,23 +1,20 @@
 import {APIGuildMember} from "discord-api-types/v10";
 import * as fs from "fs";
 import axios from "axios";
-import {createAvatar, getAvatars} from "@avatar-history/db";
+import {createAvatar, getAvatarIds} from "@avatar-history/db";
 import {logger} from "@avatar-history/logging";
 
 export const updateAvatars = async (members: APIGuildMember[]) => {
-  const avatars = await getAvatars(true);
+  // includes soft deleted avatars so they are not re-created
+  const known = await getAvatarIds();
   for (const member of members) {
     const user = member.user!;
-    const newestAvatar = avatars.filter(
-      (avatar) => avatar.userId == user.id
-    )[0];
-    const avatarId = user?.avatar;
-    if (avatars.filter((a) => a.id == avatarId).length > 0) continue;
-    if (avatarId && (!newestAvatar || avatarId != newestAvatar.id)) {
-      logger.info("Downloading " + user.username);
-      await downloadAvatar(avatarId, user.id);
-      await createAvatar(avatarId, user.id);
-    }
+    const avatarId = user.avatar;
+    if (!avatarId || known.has(avatarId)) continue;
+    logger.info("Downloading " + user.username);
+    await downloadAvatar(avatarId, user.id);
+    await createAvatar(avatarId, user.id);
+    known.add(avatarId);
   }
 };
 

@@ -1,15 +1,27 @@
 import { prisma } from "../prisma";
 import { createUser } from "./user";
 
-// Soft deleted avatars are excluded unless includeDeleted is set.
-// The updater must include them, otherwise it would try to re-create a deleted avatar.
-export const getAvatars = async (includeDeleted = false) => {
+// Never load the whole table per request: there are tens of thousands of avatars.
+
+// Newest first. Soft deleted avatars are excluded unless includeDeleted is set.
+export const getAvatarsOfUser = async (userId: string, includeDeleted = false) => {
   return await prisma.avatar.findMany({
-    where: includeDeleted ? undefined : { deletedAt: null },
+    where: includeDeleted ? { userId } : { userId, deletedAt: null },
     orderBy: {
       createdAt: "desc",
     },
   });
+};
+
+// Ids of all avatars including soft deleted ones. The updater must know about
+// deleted avatars too, otherwise it would try to re-create them.
+export const getAvatarIds = async () => {
+  const avatars = await prisma.avatar.findMany({ select: { id: true } });
+  return new Set(avatars.map((avatar) => avatar.id));
+};
+
+export const countAvatars = async () => {
+  return await prisma.avatar.count({ where: { deletedAt: null } });
 };
 
 export const createAvatar = async (id: string, userId: string) => {

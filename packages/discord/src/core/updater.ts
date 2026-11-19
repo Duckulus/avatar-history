@@ -4,17 +4,35 @@ import { GUILD_ID } from "@avatar-history/env";
 import { updateAvatars } from "./avatars";
 import { updateUsernames } from "./usernames";
 import { client } from "./client";
-import { getAvatars } from "@avatar-history/db";
+import { countAvatars } from "@avatar-history/db";
+import { logger } from "@avatar-history/logging";
 
+let running = false;
+
+// Called every 30s by cron. Runs are skipped while the previous one is still
+// in progress so slow runs can't pile up.
 export const update = async () => {
+  if (running) {
+    logger.warn("Previous update still running, skipping");
+    return;
+  }
+  running = true;
+  try {
+    await runUpdate();
+  } finally {
+    running = false;
+  }
+};
+
+const runUpdate = async () => {
   const members = await fetchMembers();
-  const avatars = await getAvatars();
+  const avatarCount = await countAvatars();
   client.user!.setPresence({
     status: "online",
     activities: [
       {
         type: ActivityType.Watching,
-        name: `${members.length} Users and ${avatars.length} Avatars`,
+        name: `${members.length} Users and ${avatarCount} Avatars`,
       },
     ],
   });

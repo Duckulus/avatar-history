@@ -6,7 +6,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const account = await getAccount(req);
+  const account = await getAccount(req, res);
   if (account) {
     res.json(
       await getDiscord("/users/@me", {

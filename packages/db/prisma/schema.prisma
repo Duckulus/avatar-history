@@ -24,6 +24,8 @@ model Avatar {
   // soft delete: hidden from the website and the bot, but kept on disk and in the db
   deletedAt DateTime?
   deletedBy String?
+
+  @@index([userId])
 }
 
 model Username {
@@ -32,6 +34,8 @@ model Username {
   value     String
   user      DiscordUser @relation(fields: [userId], references: [id])
   userId    String
+
+  @@index([userId])
 }
 
 // Discord ids with access to the admin panel. The super admin is hardcoded (see src/entities/admin.ts)

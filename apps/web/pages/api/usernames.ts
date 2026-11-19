@@ -1,17 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getUsernames } from "@avatar-history/db";
+import { getUsernamesOfUser } from "@avatar-history/db";
 import { getDiscordId } from "../../utils/id";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const id = await getDiscordId(req);
+  const id = await getDiscordId(req, res);
   if (id) {
-    const usernames = (await getUsernames()).filter((name) => {
-      return name.userId == id;
-    });
-    res.status(200).send(usernames);
+    res.status(200).send(await getUsernamesOfUser(id));
     return;
   }
 

@@ -3,7 +3,7 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
 } from "discord-api-types/v10";
-import { getAvatars } from "@avatar-history/db";
+import { getAvatarsOfUser } from "@avatar-history/db";
 import { Pagination } from "../../utils/pagination";
 import {
   CommandInteraction,
@@ -41,9 +41,7 @@ export const AvatarsContextCommand: UserCommand = {
 };
 
 const sendAvatarEmbed = async (interaction: CommandInteraction, user: User) => {
-  const avatars = (await getAvatars()).filter(
-    (avatar) => avatar.userId == user.id
-  );
+  const avatars = await getAvatarsOfUser(user.id);
   if (avatars.length == 0) {
     await interaction.reply({
       content:
