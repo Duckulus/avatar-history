@@ -9,3 +9,4 @@ packages/db/prisma/dev.db
 **/.turbo
 .env
 **/*.tsbuildinfo
+.git

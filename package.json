@@ -18,13 +18,14 @@
     "devDependencies": {
         "@types/node": "^26.6.5",
         "eslint-config-custom": "*",
-        "prettier": "latest",
-        "turbo": "latest"
+        "prettier": "latest"
     },
     "engines": {
         "npm": ">=7.0.0",
         "node": ">=26.0.0"
     },
-    "dependencies": {},
+    "dependencies": {
+        "turbo": "latest"
+    },
     "packageManager": "yarn@1.22.19"
 }
