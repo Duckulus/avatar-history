@@ -7,7 +7,7 @@ import axios from "axios";
 import {useEffect, useState} from "react";
 import {Avatar, Username} from "@prisma/client";
 import {APIGuild} from "discord-api-types/v10";
-import {Layout, Panel} from "../components/Layout";
+import {Panel} from "../components/Layout";
 import {AvatarGrid} from "../components/AvatarGrid";
 import {UsernameTimeline} from "../components/UsernameTimeline";
 import {avatarUrl} from "../utils/cdn";
@@ -48,7 +48,6 @@ const Home: NextPage = () => {
   }, [session, inGuild]);
 
   return (
-      <Layout active={tab}>
         <Panel pageKey={tab}>
           {inGuild == false && <GuildWarning/>}
           {tab == "home" ? (
@@ -75,7 +74,6 @@ const Home: NextPage = () => {
               </>
           )}
         </Panel>
-      </Layout>
   );
 };
 export default Home;
@@ -175,11 +173,17 @@ function Orbit({avatars, image}: { avatars: Avatar[]; image: string | null }) {
           const style = {
             "--angle": `${(360 / slots) * i}deg`,
             "--r": i % 2 == 0 ? "150%" : "105%",
-            background: avatar ? undefined : `hsl(${250 + i * 30} 90% 65%)`,
+            background: `hsl(${250 + i * 25} 35% 58%)`,
           } as React.CSSProperties;
           return (
               <div key={i} className={"orbit-item"} style={style}>
-                {avatar && <img src={avatarUrl(avatar.userId, avatar.id)} alt={""}/>}
+                {avatar && (
+                    <img
+                        src={avatarUrl(avatar.userId, avatar.id)}
+                        alt={""}
+                        onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
+                )}
               </div>
           );
         })}

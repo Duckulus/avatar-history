@@ -7,12 +7,12 @@
     --border: rgba(255, 255, 255, 0.1);
     --text: #f3f1ff;
     --muted: #a7a3c9;
-    --accent: #7b6cff;
-    --accent-2: #ff6ec7;
-    --accent-3: #3ee8c9;
-    --danger: #ff5c7a;
-    --warn: #ffc857;
-    --gradient: linear-gradient(120deg, var(--accent), var(--accent-2) 55%, var(--warn));
+    --accent: #8c84e0;
+    --accent-2: #c993bd;
+    --accent-3: #7cc8bb;
+    --danger: #e0798b;
+    --warn: #e2c27e;
+    --gradient: linear-gradient(120deg, var(--accent), var(--accent-2));
     --radius: 22px;
     --font-display: "Space Grotesk", system-ui, sans-serif;
     --font-body: "Inter", system-ui, sans-serif;
@@ -90,8 +90,8 @@ button {
     width: 46vmax;
     height: 46vmax;
     border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.35;
+    filter: blur(110px);
+    opacity: 0.16;
     mix-blend-mode: screen;
     animation: drift 28s ease-in-out infinite alternate;
 }
@@ -108,7 +108,7 @@ button {
     right: -18vmax;
     animation-duration: 34s;
     animation-delay: -8s;
-    opacity: 0.25;
+    opacity: 0.1;
 }
 
 .blob-3 {
@@ -117,13 +117,13 @@ button {
     left: 20vw;
     animation-duration: 40s;
     animation-delay: -16s;
-    opacity: 0.18;
+    opacity: 0.08;
 }
 
 .grain {
     position: absolute;
     inset: -50%;
-    opacity: 0.06;
+    opacity: 0.04;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -167,7 +167,7 @@ button {
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(140deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04) 40%, rgba(255, 110, 199, 0.35));
+    background: linear-gradient(140deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 45%, rgba(201, 147, 189, 0.2));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -252,18 +252,23 @@ button {
     display: flex;
     gap: 2px;
     min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
 }
 
 .nav-indicator {
     position: absolute;
     top: 0;
     bottom: 0;
+    left: 0;
     border-radius: 999px;
     background: var(--surface-strong);
     border: 1px solid var(--border);
-    transition: left 0.45s var(--ease-spring), width 0.45s var(--ease-spring), opacity 0.3s;
+    will-change: transform, width;
+    transition: transform 0.45s var(--ease-spring), width 0.45s var(--ease-spring), opacity 0.3s;
+}
+
+/* first placement happens without sliding in from the left */
+.nav-indicator.instant {
+    transition: none;
 }
 
 .nav-link {
@@ -290,7 +295,6 @@ button {
     height: 6px;
     border-radius: 50%;
     background: var(--accent-2);
-    box-shadow: 0 0 10px var(--accent-2);
 }
 
 .nav-right {
@@ -354,28 +358,22 @@ button {
 .btn-primary {
     border: none;
     background: var(--gradient);
-    background-size: 200% 100%;
     color: #fff;
-    box-shadow: 0 8px 24px -8px var(--accent-2);
-    animation: shimmer 6s linear infinite;
+    box-shadow: 0 8px 20px -12px var(--accent);
 }
 
 .btn-primary:hover {
-    box-shadow: 0 12px 32px -8px var(--accent-2);
-}
-
-@keyframes shimmer {
-    to { background-position: -200% 0; }
+    box-shadow: 0 10px 26px -12px var(--accent);
 }
 
 .btn-danger {
     color: var(--danger);
-    border-color: rgba(255, 92, 122, 0.35);
-    background: rgba(255, 92, 122, 0.08);
+    border-color: rgba(224, 121, 139, 0.35);
+    background: rgba(224, 121, 139, 0.08);
 }
 
 .btn-danger:hover {
-    background: rgba(255, 92, 122, 0.18);
+    background: rgba(224, 121, 139, 0.18);
     border-color: var(--danger);
     color: #fff;
 }
@@ -412,11 +410,9 @@ button {
 
 .gradient-text {
     background: var(--gradient);
-    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: shimmer 8s linear infinite;
 }
 
 .lead {
@@ -458,7 +454,7 @@ button {
     inset: 36%;
     border-radius: 50%;
     background: var(--gradient);
-    box-shadow: 0 0 60px var(--accent-2);
+    box-shadow: 0 0 40px -10px var(--accent);
     animation: pulse 4s ease-in-out infinite;
     overflow: hidden;
 }
@@ -478,7 +474,7 @@ button {
     margin: -11%;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.35);
     transform: rotate(var(--angle)) translateX(var(--r)) rotate(calc(-1 * var(--angle)));
     animation: orbit 30s linear infinite;
     box-shadow: 0 10px 30px -10px #000;
@@ -500,7 +496,7 @@ button {
 }
 
 @keyframes pulse {
-    50% { transform: scale(1.06); box-shadow: 0 0 90px var(--accent); }
+    50% { transform: scale(1.04); }
 }
 
 .features {
@@ -548,17 +544,17 @@ button {
     margin: 0 0 20px;
     padding: 14px 16px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 200, 87, 0.35);
-    background: rgba(255, 200, 87, 0.08);
-    color: #ffe2a3;
+    border: 1px solid rgba(226, 194, 126, 0.35);
+    background: rgba(226, 194, 126, 0.08);
+    color: #eedcb4;
     font-size: 0.92rem;
     animation: rise 0.6s var(--ease-out) both;
 }
 
 .callout.danger {
-    border-color: rgba(255, 92, 122, 0.4);
-    background: rgba(255, 92, 122, 0.08);
-    color: #ffc2cd;
+    border-color: rgba(224, 121, 139, 0.4);
+    background: rgba(224, 121, 139, 0.08);
+    color: #efc3cb;
 }
 
 .callout p:last-child {
@@ -653,14 +649,14 @@ button {
     inset: -4px;
     border-radius: 50%;
     background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
-    opacity: 0.45;
+    opacity: 0.25;
     transition: opacity 0.3s;
     animation: spin 6s linear infinite;
     animation-play-state: paused;
 }
 
 .avatar-card:hover .avatar-ring::before {
-    opacity: 1;
+    opacity: 0.8;
     animation-play-state: running;
 }
 
@@ -672,6 +668,34 @@ button {
     object-fit: cover;
     border: 3px solid var(--bg);
     background: var(--bg-2);
+}
+
+.avatar-fallback {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    background: linear-gradient(140deg, rgba(140, 132, 224, 0.25), rgba(201, 147, 189, 0.2)), var(--bg-2);
+    color: var(--muted);
+    line-height: 1.2;
+}
+
+.avatar-fallback span {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+    opacity: 0.7;
+}
+
+.avatar-fallback small {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
 }
 
 .avatar-meta {
@@ -699,18 +723,18 @@ button {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     vertical-align: middle;
-    background: rgba(62, 232, 201, 0.15);
+    background: rgba(124, 200, 187, 0.14);
     color: var(--accent-3);
 }
 
 .tag.danger {
-    background: rgba(255, 92, 122, 0.15);
+    background: rgba(224, 121, 139, 0.14);
     color: var(--danger);
 }
 
 .tag.violet {
-    background: rgba(123, 108, 255, 0.2);
-    color: #c3bbff;
+    background: rgba(140, 132, 224, 0.16);
+    color: #c4bff0;
 }
 
 .avatar-actions {
@@ -719,7 +743,7 @@ button {
 
 .avatar-card.is-deleted {
     border-style: dashed;
-    border-color: rgba(255, 92, 122, 0.4);
+    border-color: rgba(224, 121, 139, 0.4);
 }
 
 .avatar-card.is-deleted .avatar-ring img {
@@ -758,12 +782,17 @@ button {
     cursor: default;
 }
 
-.lightbox img {
+.lightbox-image {
     width: min(80vw, 70vh, 512px);
     aspect-ratio: 1;
+}
+
+.lightbox-image img, .lightbox-image .avatar-fallback {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     border-radius: 28px;
-    box-shadow: 0 30px 100px -20px var(--accent);
+    box-shadow: 0 30px 80px -30px #000;
 }
 
 @keyframes fade {
@@ -826,7 +855,7 @@ button {
 .timeline li:first-child::before {
     background: var(--accent-2);
     border-color: var(--accent-2);
-    box-shadow: 0 0 0 4px rgba(255, 110, 199, 0.25), 0 0 16px var(--accent-2);
+    box-shadow: 0 0 0 4px rgba(201, 147, 189, 0.18);
 }
 
 .timeline .name {
@@ -919,7 +948,7 @@ button {
 .input:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(123, 108, 255, 0.2);
+    box-shadow: 0 0 0 4px rgba(140, 132, 224, 0.18);
 }
 
 .toolbar {
@@ -931,6 +960,25 @@ button {
 
 .toolbar .input {
     flex: 1 1 220px;
+}
+
+.sort-tabs {
+    align-items: center;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.sort-label {
+    padding: 0 6px 0 10px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.sort-dir {
+    margin-left: 4px;
+    font-size: 0.85em;
 }
 
 .user-rows {
@@ -1020,7 +1068,7 @@ a.user-row:hover {
     width: 84px;
     height: 84px;
     border: 3px solid var(--accent);
-    box-shadow: 0 0 40px -6px var(--accent-2);
+    box-shadow: 0 0 30px -10px var(--accent);
 }
 
 .profile-head h2 {
@@ -1117,6 +1165,21 @@ a.user-row:hover {
 }
 
 @media (max-width: 560px) {
+    .sort-tabs {
+        width: 100%;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+    }
+
+    .sort-label {
+        display: none;
+    }
+
+    .sort-tabs .tab {
+        padding: 6px 8px;
+        font-size: 0.85rem;
+    }
+
     .avatar-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;

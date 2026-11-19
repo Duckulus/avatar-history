@@ -3,6 +3,27 @@ import { ReactNode, useEffect, useState } from "react";
 import { avatarUrl } from "../utils/cdn";
 import { formatDate } from "../utils/format";
 
+// Shows a placeholder instead of the browser's clipped alt text when the file is missing on the CDN
+function AvatarImage({ avatar, alt }: { avatar: AvatarLike; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <span className={"avatar-fallback"} role={"img"} aria-label={`${alt} (unavailable)`}>
+        <span aria-hidden>?</span>
+        <small>unavailable</small>
+      </span>
+    );
+  }
+  return (
+    <img
+      src={avatarUrl(avatar.userId, avatar.id)}
+      alt={alt}
+      loading={"lazy"}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export interface AvatarLike {
   id: string;
   userId: string;
@@ -46,11 +67,7 @@ export function AvatarGrid<T extends AvatarLike>({
                 onClick={() => setOpen(avatar)}
                 aria-label={`Show avatar #${number}`}
               >
-                <img
-                  src={avatarUrl(avatar.userId, avatar.id)}
-                  alt={`Avatar #${number}`}
-                  loading={"lazy"}
-                />
+                <AvatarImage avatar={avatar} alt={`Avatar #${number}`} />
               </button>
               <figcaption className={"avatar-meta"}>
                 <span className={"avatar-no"}>
@@ -87,7 +104,9 @@ function Lightbox({
   return (
     <div className={"lightbox"} onClick={onClose} role={"dialog"} aria-modal>
       <div className={"lightbox-inner"} onClick={(e) => e.stopPropagation()}>
-        <img src={url} alt={"Avatar"} />
+        <div className={"lightbox-image"}>
+          <AvatarImage avatar={avatar} alt={"Avatar"} />
+        </div>
         <div className={"hero-actions"}>
           <a className={"btn"} href={url} target={"_blank"} rel={"noreferrer"}>
             Open original ↗

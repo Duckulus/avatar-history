@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { Layout, Panel } from "../components/Layout";
+import { Panel } from "../components/Layout";
 
 export default function PageNotFound() {
   return (
-    <Layout>
       <Panel>
         <div className={"empty"}>
           <span className={"empty-icon"}>🛸</span>
@@ -16,6 +15,5 @@ export default function PageNotFound() {
           </Link>
         </div>
       </Panel>
-    </Layout>
   );
 }

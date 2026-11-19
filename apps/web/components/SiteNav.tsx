@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NextRouter, useRouter } from "next/router";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -7,8 +8,17 @@ export type NavKey = "home" | "avatars" | "usernames" | "admin";
 const useIsomorphicLayoutEffect =
   typeof window != "undefined" ? useLayoutEffect : useEffect;
 
-export function SiteNav({ active }: { active?: NavKey }) {
+const activeKey = (router: NextRouter, signedIn: boolean): NavKey | undefined => {
+  if (router.pathname.startsWith("/admin")) return "admin";
+  if (router.pathname != "/") return undefined;
+  const tab = router.query.tab;
+  return signedIn && (tab == "avatars" || tab == "usernames") ? tab : "home";
+};
+
+export function SiteNav() {
   const { data: session } = useSession();
+  const router = useRouter();
+  const active = activeKey(router, !!session);
   const isAdmin = session?.role == "admin" || session?.role == "superadmin";
 
   const items: { key: NavKey; label: string; href: string }[] = [
@@ -24,6 +34,14 @@ export function SiteNav({ active }: { active?: NavKey }) {
 
   const container = useRef<HTMLDivElement>(null);
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+  const placed = indicator.width > 0;
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    if (!placed || animate) return;
+    const frame = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(frame);
+  }, [placed, animate]);
 
   // slide the pill under the active link
   useIsomorphicLayoutEffect(() => {
@@ -53,8 +71,12 @@ export function SiteNav({ active }: { active?: NavKey }) {
 
       <div className={"nav-items"} ref={container}>
         <span
-          className={"nav-indicator"}
-          style={{ ...indicator, opacity: indicator.width ? 1 : 0 }}
+          className={"nav-indicator" + (animate ? "" : " instant")}
+          style={{
+            transform: `translateX(${indicator.left}px)`,
+            width: indicator.width,
+            opacity: indicator.width ? 1 : 0,
+          }}
         />
         {items.map((item) => (
           <Link

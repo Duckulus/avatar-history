@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { Layout, Panel } from "../../../components/Layout";
+import { Panel } from "../../../components/Layout";
 import { AdminGate } from "../../../components/AdminGate";
 import { AvatarGrid } from "../../../components/AvatarGrid";
 import { UsernameTimeline } from "../../../components/UsernameTimeline";
@@ -63,7 +63,6 @@ const AdminUserPage: NextPage = () => {
   const currentAvatar = user?.Avatar.find((a) => !a.deletedAt)?.id ?? null;
 
   return (
-    <Layout active={"admin"}>
       <AdminGate>
         <Panel pageKey={id}>
           <Link href={"/admin"} className={"back-link"}>
@@ -127,7 +126,6 @@ const AdminUserPage: NextPage = () => {
           )}
         </Panel>
       </AdminGate>
-    </Layout>
   );
 };
 export default AdminUserPage;

@@ -1,10 +1,8 @@
 import { PropsWithChildren } from "react";
-import { NavKey, SiteNav } from "./SiteNav";
+import { SiteNav } from "./SiteNav";
 
-export function Layout({
-  children,
-  active,
-}: PropsWithChildren<{ active?: NavKey }>) {
+// Rendered once in _app so the navbar persists across page navigations
+export function Layout({ children }: PropsWithChildren) {
   return (
     <>
       <div className={"backdrop"} aria-hidden>
@@ -15,7 +13,7 @@ export function Layout({
         <div className={"grain"} />
       </div>
       <div className={"layout"}>
-        <SiteNav active={active} />
+        <SiteNav />
         {children}
       </div>
     </>

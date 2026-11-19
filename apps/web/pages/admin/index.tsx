@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Layout, Panel } from "../../components/Layout";
+import { Panel } from "../../components/Layout";
 import { AdminGate } from "../../components/AdminGate";
 import { MiniAvatar } from "../../components/MiniAvatar";
 import { formatDate, plural } from "../../utils/format";
@@ -29,6 +29,15 @@ interface AdminEntry {
 
 const PAGE_SIZE = 40;
 
+type SortKey = "recent" | "avatars" | "usernames" | "hidden";
+
+const SORTS: { key: SortKey; label: string; value: (u: UserOverview) => number }[] = [
+  { key: "recent", label: "Recent", value: (u) => u.lastSeenChange ?? 0 },
+  { key: "avatars", label: "Avatars", value: (u) => u.avatarCount },
+  { key: "usernames", label: "Names", value: (u) => u.usernameCount },
+  { key: "hidden", label: "Hidden", value: (u) => u.deletedAvatarCount },
+];
+
 const AdminPage: NextPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
@@ -36,7 +45,6 @@ const AdminPage: NextPage = () => {
   const tab = router.query.tab == "admins" && isSuperAdmin ? "admins" : "users";
 
   return (
-    <Layout active={"admin"}>
       <AdminGate>
         <Panel pageKey={tab}>
           <div className={"section-head"}>
@@ -62,7 +70,6 @@ const AdminPage: NextPage = () => {
           {tab == "users" ? <Users /> : <Admins />}
         </Panel>
       </AdminGate>
-    </Layout>
   );
 };
 export default AdminPage;
@@ -71,6 +78,10 @@ function Users() {
   const [users, setUsers] = useState<UserOverview[] | null>(null);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
+  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({
+    key: "recent",
+    desc: true,
+  });
 
   useEffect(() => {
     axios.get("/api/admin/users").then((resp) => setUsers(resp.data));
@@ -78,11 +89,18 @@ function Users() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!users || !q) return users ?? [];
-    return users.filter(
-      (u) => u.id.includes(q) || (u.username ?? "").toLowerCase().includes(q)
+    const matches = (users ?? []).filter(
+      (u) => !q || u.id.includes(q) || (u.username ?? "").toLowerCase().includes(q)
     );
-  }, [users, query]);
+    // the api returns users by recent activity and sort is stable, so ties stay in that order
+    const value = SORTS.find((s) => s.key == sort.key)!.value;
+    return matches.sort((a, b) => (sort.desc ? value(b) - value(a) : value(a) - value(b)));
+  }, [users, query, sort]);
+
+  const changeSort = (key: SortKey) => {
+    setSort((s) => (s.key == key ? { key, desc: !s.desc } : { key, desc: true }));
+    setPage(0);
+  };
 
   if (!users) return <div className={"spinner"} />;
 
@@ -110,6 +128,20 @@ function Users() {
             setPage(0);
           }}
         />
+        <div className={"tabs sort-tabs"} role={"group"} aria-label={"Sort users"}>
+          <span className={"sort-label"}>Sort</span>
+          {SORTS.map((s) => (
+            <button
+              key={s.key}
+              className={"tab" + (sort.key == s.key ? " active" : "")}
+              onClick={() => changeSort(s.key)}
+              aria-pressed={sort.key == s.key}
+            >
+              {s.label}
+              {sort.key == s.key && <span className={"sort-dir"}>{sort.desc ? "↓" : "↑"}</span>}
+            </button>
+          ))}
+        </div>
       </div>
       {visible.length == 0 ? (
         <div className={"empty"}>
@@ -117,7 +149,7 @@ function Users() {
           No users match &quot;{query}&quot;.
         </div>
       ) : (
-        <div className={"user-rows"} key={`${current}-${query}`}>
+        <div className={"user-rows"} key={`${current}-${query}-${sort.key}-${sort.desc}`}>
           {visible.map((user, i) => (
             <Link
               key={user.id}

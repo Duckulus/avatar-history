@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import { useState } from "react";
 import { avatarUrl } from "../utils/cdn";
 
 export function MiniAvatar({
@@ -8,8 +9,15 @@ export function MiniAvatar({
   userId: string;
   avatarId: string | null;
 }) {
-  return avatarId ? (
-    <img className={"mini-avatar"} src={avatarUrl(userId, avatarId)} alt={""} loading={"lazy"} />
+  const [failed, setFailed] = useState(false);
+  return avatarId && !failed ? (
+    <img
+      className={"mini-avatar"}
+      src={avatarUrl(userId, avatarId)}
+      alt={""}
+      loading={"lazy"}
+      onError={() => setFailed(true)}
+    />
   ) : (
     <span className={"mini-avatar"} style={{ display: "block" }} />
   );
