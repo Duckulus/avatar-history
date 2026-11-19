@@ -5,7 +5,8 @@
     "license": "MIT",
     "scripts": {
         "build": "tsc -b",
-        "generate": "prisma db push && prisma generate"
+        "generate": "prisma db push && prisma generate",
+        "push": "prisma db push --skip-generate"
     },
     "devDependencies": {
         "typescript": "^5.8.3"

@@ -9,7 +9,7 @@
     "scripts": {
         "build": "turbo run build",
         "start": "turbo run start",
-        "deploy": "yarn db generate && yarn start",
+        "deploy": "yarn db push && turbo run start --only",
         "dev": "turbo run dev --parallel",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",

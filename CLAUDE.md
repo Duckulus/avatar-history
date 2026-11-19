@@ -16,7 +16,7 @@ yarn db generate     # prisma db push + prisma generate (required before first b
 yarn build           # turbo build of all workspaces (packages build before dependents via ^build)
 yarn dev             # all apps in parallel
 yarn start           # build + start all apps (same as production)
-yarn deploy          # db generate + start (Docker entrypoint)
+yarn deploy          # prisma db push + start prebuilt apps without building (Docker entrypoint)
 yarn lint            # only apps/web defines lint (next lint)
 yarn format          # prettier
 yarn workspace <name> build   # e.g. @avatar-history/discord, web
@@ -55,4 +55,4 @@ Internal packages are consumed via their compiled `dist/` output (`main: dist/in
 
 ## Deployment
 
-`Dockerfile` runs `yarn deploy`. `docker-compose.yml` mounts `./static` and the SQLite file and exposes ports 7777 (CDN) and 3000 (web). Every push to `master` builds and pushes a multi-arch image to Docker Hub (`.github/workflows/docker-deploy.yml`).
+The `Dockerfile` installs, runs `prisma generate` and builds everything at image build time; the container only runs `yarn deploy`. Runtime config comes from `.env` at container start, so nothing environment-specific may be baked in at build time: the home page uses `getServerSideProps` for `GUILD_ID`/`GUILD_INVITE` (which also makes `_document` read `GOOGLE_VERIFICATION_ID`/`WEB_URL` per request). Don't add values to `next.config.js` `env`. `docker-compose.yml` mounts `./static` and the SQLite file and exposes ports 7777 (CDN) and 3000 (web). Every push to `master` builds and pushes a multi-arch image to Docker Hub (`.github/workflows/docker-deploy.yml`).

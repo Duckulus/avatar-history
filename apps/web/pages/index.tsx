@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import type {NextPage} from "next";
+import type {GetServerSideProps, NextPage} from "next";
 import Link from "next/link";
 import {useRouter} from "next/router";
 import {signIn, useSession} from "next-auth/react";
@@ -15,7 +15,21 @@ import {avatarUrl} from "../utils/cdn";
 type Tab = "home" | "avatars" | "usernames";
 const POLL_INTERVAL = 10_000;
 
-const Home: NextPage = () => {
+interface Props {
+  guildId: string;
+  guildInvite: string;
+}
+
+// Rendered on demand so guild settings come from the runtime environment
+// instead of being baked into the bundle when the docker image is built.
+export const getServerSideProps: GetServerSideProps<Props> = async () => ({
+  props: {
+    guildId: process.env.GUILD_ID ?? "",
+    guildInvite: process.env.GUILD_INVITE ?? "",
+  },
+});
+
+const Home: NextPage<Props> = ({guildId, guildInvite}) => {
   const {data: session} = useSession();
   const router = useRouter();
   const [avatars, setAvatars] = useState<Avatar[]>([]);
@@ -43,18 +57,19 @@ const Home: NextPage = () => {
     if (!session || inGuild != null) return;
     axios.get(`/api/guilds/`).then((resp) => {
       const guilds = resp.data as APIGuild[];
-      setInGuild(guilds.some((guild) => guild.id == process.env.GUILD_ID));
+      setInGuild(guilds.some((guild) => guild.id == guildId));
     });
-  }, [session, inGuild]);
+  }, [session, inGuild, guildId]);
 
   return (
         <Panel pageKey={tab}>
-          {inGuild == false && <GuildWarning/>}
+          {inGuild == false && <GuildWarning invite={guildInvite}/>}
           {tab == "home" ? (
               <HomeContent
                   name={session?.user?.name ?? null}
                   avatars={avatars}
                   image={session?.user?.image ?? null}
+                  guildInvite={guildInvite}
               />
           ) : tab == "avatars" ? (
               <>
@@ -82,10 +97,12 @@ function HomeContent({
                        name,
                        avatars,
                        image,
+                       guildInvite,
                      }: {
   name: string | null;
   avatars: Avatar[];
   image: string | null;
+  guildInvite: string;
 }) {
   return (
       <>
@@ -112,7 +129,7 @@ function HomeContent({
                     Sign in with Discord
                   </button>
               )}
-              <a className={"btn"} href={process.env.GUILD_INVITE} target={"_blank"} rel={"noreferrer"}>
+              <a className={"btn"} href={guildInvite} target={"_blank"} rel={"noreferrer"}>
                 Join the server ↗
               </a>
             </div>
@@ -191,14 +208,14 @@ function Orbit({avatars, image}: { avatars: Avatar[]; image: string | null }) {
   );
 }
 
-function GuildWarning() {
+function GuildWarning({invite}: { invite: string }) {
   return (
       <div className={"callout danger"}>
         <span>🚨</span>
         <p>
           To ensure your avatars and usernames are properly tracked, please make sure you&apos;ve joined
           our Discord server. If you&apos;ve already joined, you can safely ignore this message.{" "}
-          <a rel="noreferrer" href={process.env.GUILD_INVITE} target="_blank">Join the server</a>
+          <a rel="noreferrer" href={invite} target="_blank">Join the server</a>
         </p>
       </div>
   );

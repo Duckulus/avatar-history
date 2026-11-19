@@ -4,3 +4,8 @@ packages/*/node_modules
 apps/*/node_modules
 static
 packages/db/prisma/dev.db
+**/.next
+**/dist
+**/.turbo
+.env
+**/*.tsbuildinfo
