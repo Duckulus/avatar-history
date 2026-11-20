@@ -12,6 +12,8 @@
     "@avatar-history/db": "*",
     "@avatar-history/discord": "*",
     "@avatar-history/logging": "*",
+    "@fontsource/inter": "5.2.5",
+    "@fontsource/space-grotesk": "5.2.5",
     "@next-auth/prisma-adapter": "^1.0.4",
     "@types/next-auth": "^3.15.0",
     "axios": "^0.27.2",
