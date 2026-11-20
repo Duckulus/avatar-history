@@ -109,6 +109,20 @@ function Lightbox({
   }, [onClose]);
 
   const url = avatarUrl(avatar.userId, avatar.id);
+  const [copied, setCopied] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (copied == null) return;
+    const timeout = setTimeout(() => setCopied(null), 2000);
+    return () => clearTimeout(timeout);
+  }, [copied]);
+
+  const copy = () =>
+    navigator.clipboard
+      .writeText(url)
+      .then(() => setCopied(true))
+      .catch(() => setCopied(false));
+
   return (
     <div className={"lightbox"} onClick={onClose} role={"dialog"} aria-modal>
       <div className={"lightbox-inner"} onClick={(e) => e.stopPropagation()}>
@@ -116,6 +130,9 @@ function Lightbox({
           <AvatarImage avatar={avatar} alt={"Avatar"} />
         </div>
         <div className={"hero-actions"}>
+          <button className={"btn btn-primary"} onClick={copy}>
+            {copied == null ? "Copy link" : copied ? "Copied ✓" : "Copy failed"}
+          </button>
           <a className={"btn"} href={url} target={"_blank"} rel={"noreferrer"}>
             Open original ↗
           </a>
