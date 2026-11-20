@@ -4,7 +4,7 @@ import { GUILD_ID } from "@avatar-history/env";
 import { updateAvatars } from "./avatars";
 import { updateUsernames } from "./usernames";
 import { client } from "./client";
-import { countAvatars } from "@avatar-history/db";
+import { countAvatars, countUsers } from "@avatar-history/db";
 import { logger } from "@avatar-history/logging";
 
 let running = false;
@@ -26,13 +26,13 @@ export const update = async () => {
 
 const runUpdate = async () => {
   const members = await fetchMembers();
-  const avatarCount = await countAvatars();
+  const [userCount, avatarCount] = await Promise.all([countUsers(), countAvatars()]);
   client.user!.setPresence({
     status: "online",
     activities: [
       {
         type: ActivityType.Watching,
-        name: `${members.length} Users and ${avatarCount} Avatars`,
+        name: `${userCount} Users and ${avatarCount} Avatars`,
       },
     ],
   });

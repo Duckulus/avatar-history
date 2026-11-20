@@ -23,3 +23,8 @@ export const getUser = async (id: string) => {
     },
   });
 };
+
+// Every user that has ever been tracked, not only current guild members
+export const countUsers = async () => {
+  return await prisma.discordUser.count();
+};
