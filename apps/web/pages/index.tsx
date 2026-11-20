@@ -4,7 +4,7 @@ import Link from "next/link";
 import {useRouter} from "next/router";
 import {signIn, useSession} from "next-auth/react";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Avatar, Username} from "@prisma/client";
 import {APIGuild} from "discord-api-types/v10";
 import {Panel} from "../components/Layout";
@@ -35,6 +35,8 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
   const [avatars, setAvatars] = useState<Avatar[] | null>(null);
   const [usernames, setUsernames] = useState<Username[] | null>(null);
   const [inGuild, setInGuild] = useState<boolean | null>(null);
+  // Only relevant while nothing has been loaded yet; a failed poll keeps the old data
+  const [loadError, setLoadError] = useState(false);
 
   const requested = router.query.tab;
   const tab: Tab =
@@ -42,16 +44,28 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
           ? requested
           : "home";
 
+  const signedIn = !!session;
+  const fetchHistory = useCallback(() => {
+    if (!signedIn) return;
+    Promise.all([axios.get(`/api/avatars/`), axios.get(`/api/usernames/`)])
+        .then(([avatarResp, usernameResp]) => {
+          setAvatars(avatarResp.data);
+          setUsernames(usernameResp.data);
+          setLoadError(false);
+        })
+        .catch(() => setLoadError(true));
+  }, [signedIn]);
+
   useEffect(() => {
-    if (!session) return;
-    const fetchHistory = () => {
-      axios.get(`/api/avatars/`).then((resp) => setAvatars(resp.data));
-      axios.get(`/api/usernames/`).then((resp) => setUsernames(resp.data));
-    };
+    if (!signedIn) return;
     fetchHistory();
     const interval = setInterval(fetchHistory, POLL_INTERVAL);
     return () => clearInterval(interval);
-  }, [session]);
+  }, [signedIn, fetchHistory]);
+
+  const placeholder = (what: string) =>
+      loadError ? <LoadError what={what} onRetry={fetchHistory}/> :
+          <div className={"spinner"} role={"status"} aria-label={`Loading ${what}`}/>;
 
   useEffect(() => {
     if (!session || inGuild != null) return;
@@ -77,7 +91,7 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
                   <h2>Your <span className={"gradient-text"}>avatars</span></h2>
                   {avatars && <span className={"count"}>{avatars.length} archived</span>}
                 </div>
-                {avatars ? <AvatarGrid avatars={avatars}/> : <div className={"spinner"} role={"status"} aria-label={"Loading avatars"}/>}
+                {avatars ? <AvatarGrid avatars={avatars}/> : placeholder("avatars")}
               </>
           ) : (
               <>
@@ -85,7 +99,7 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
                   <h2>Your <span className={"gradient-text"}>usernames</span></h2>
                   {usernames && <span className={"count"}>{usernames.length} archived</span>}
                 </div>
-                {usernames ? <UsernameTimeline usernames={usernames}/> : <div className={"spinner"} role={"status"} aria-label={"Loading usernames"}/>}
+                {usernames ? <UsernameTimeline usernames={usernames}/> : placeholder("usernames")}
               </>
           )}
         </Panel>
@@ -204,6 +218,16 @@ function Orbit({avatars, image}: { avatars: Avatar[]; image: string | null }) {
               </div>
           );
         })}
+      </div>
+  );
+}
+
+function LoadError({what, onRetry}: { what: string; onRetry: () => void }) {
+  return (
+      <div className={"empty"} role={"alert"}>
+        <span className={"empty-icon"}>⚠️</span>
+        <p>Your {what} could not be loaded. We&apos;ll keep retrying in the background.</p>
+        <button className={"btn btn-small"} onClick={onRetry}>Try again</button>
       </div>
   );
 }
