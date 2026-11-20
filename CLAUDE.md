@@ -43,6 +43,8 @@ Internal packages are consumed via their compiled `dist/` output (`main: dist/in
 
 **Update loop** (`packages/discord/src/core/updater.ts`): pages through guild members over REST (1000 per page, `after` cursor), sets bot presence, then `updateAvatars` and `updateUsernames` diff the members against the DB and record new entries. New avatars are downloaded from Discord's CDN to `static/avatars/<userId>/<avatarId>.png` (relative path `../../static`, shared with apps/cdn). Avatar rows use the Discord avatar hash as their primary key.
 
+**Welcome message** (`packages/discord/src/core/welcome.ts`): on `GuildMemberAdd` in `GUILD_ID` the bot posts a components v2 welcome to `WELCOME_CHANNEL_ID` (fallback: the guild's system channel). Needs the `Guilds` + privileged `GuildMembers` gateway intents.
+
 **Bot commands** (`packages/discord/src/command/`): each command is a `SlashCommand` or `UserCommand` object in `impl/`, registered in `commandHandler.ts#initCommands`. On startup all application commands are overwritten globally via REST. Public avatar URLs are built with `utils/cdn.ts` (`https://${CDN_URL}/avatars/...`, so `CDN_URL` is a bare host).
 
 **Web**: next-auth with the Prisma adapter stores `User`/`Account`/`Session` in the same SQLite DB. API routes (`pages/api/*`) map the session to the Discord user id via `utils/id.ts#getDiscordId` (the `Account.providerAccountId`) and filter avatars/usernames by it. `/api/guilds` calls the Discord API with the stored OAuth access token (`guilds` scope). `next.config.js` exposes `GUILD_ID`, `GUILD_INVITE` and `GOOGLE_VERIFICATION_ID` to the client and whitelists `cdn.duckul.us` for `next/image`.
