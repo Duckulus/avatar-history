@@ -22,7 +22,7 @@ import {
   wrappedYears,
 } from "../utils/wrapped";
 import { renderWrappedCard } from "../utils/wrappedCard";
-import type { WrappedRank } from "./api/wrapped/rank";
+import type { WrappedRank } from "../utils/rank";
 
 interface Props {
   session: Session | null;
@@ -140,6 +140,7 @@ export function WrappedView({
   rank,
   guildInvite,
   onYear,
+  owner,
 }: {
   stats: WrappedStats;
   years: number[];
@@ -147,6 +148,8 @@ export function WrappedView({
   rank: WrappedRank | null;
   guildInvite: string;
   onYear: (year: number) => void;
+  // set when someone else's Wrapped is viewed through a share link
+  owner?: string;
 }) {
   const empty = stats.avatars.length == 0 && stats.usernames.length == 0 && !stats.first;
   const maxMonth = Math.max(1, ...stats.monthly);
@@ -160,9 +163,9 @@ export function WrappedView({
       <section className={"wrapped-hero"}>
         <span className={"eyebrow"}>✨ Wrapped</span>
         <h1>
-          Your <span className={"gradient-text"}>{stats.year}</span> in pfps
+          {owner ? `${owner}'s` : "Your"} <span className={"gradient-text"}>{stats.year}</span> in pfps
         </h1>
-        {years.length > 1 && (
+        {!owner && years.length > 1 && (
           <div className={"year-switch"} role={"tablist"} aria-label={"Year"}>
             {years.map((y) => (
               <button
@@ -182,7 +185,7 @@ export function WrappedView({
       {empty ? (
         <div className={"empty"}>
           <span className={"empty-icon"}>🕰️</span>
-          <p>Nothing was recorded for you in {stats.year}. Tracking only runs while you&apos;re on the server.</p>
+          <p>Nothing was recorded{owner ? "" : " for you"} in {stats.year}. Tracking only runs while you&apos;re on the server.</p>
           {guildInvite && (
             <a className={"btn btn-small"} href={guildInvite} target={"_blank"} rel={"noreferrer"}>
               Join the server ↗
@@ -192,7 +195,7 @@ export function WrappedView({
       ) : (
         <div className={"wrapped-grid"}>
           <div className={"wrapped-card big"} style={next()}>
-            <span className={"wrapped-label"}>This year you wore</span>
+            <span className={"wrapped-label"}>{owner ? `This year ${owner} wore` : "This year you wore"}</span>
             <strong className={"wrapped-number gradient-text"}>{stats.avatars.length}</strong>
             <span className={"wrapped-sub"}>
               new {stats.avatars.length == 1 ? "pfp" : "pfps"} and {plural(stats.usernames.length, "new username")}
@@ -201,7 +204,7 @@ export function WrappedView({
 
           <div className={"wrapped-card persona"} style={next()}>
             <span className={"wrapped-emoji"} aria-hidden>{stats.persona.emoji}</span>
-            <span className={"wrapped-label"}>Your persona</span>
+            <span className={"wrapped-label"}>{owner ? "Persona" : "Your persona"}</span>
             <strong className={"wrapped-title"}>{stats.persona.title}</strong>
             <span className={"wrapped-sub"}>{stats.persona.text}</span>
           </div>
@@ -283,7 +286,7 @@ export function WrappedView({
                 Top {Math.max(1, 100 - rank.beatenPercent)}%
               </strong>
               <span className={"wrapped-sub"}>
-                You changed your pfp more often than {rank.beatenPercent}% of {rank.trackedUsers} tracked users.
+                {owner ?? "You"} changed {owner ? "their" : "your"} pfp more often than {rank.beatenPercent}% of {rank.trackedUsers} tracked users.
               </span>
             </div>
           )}
@@ -318,7 +321,11 @@ export function WrappedView({
             </div>
           )}
 
-          <ShareCard stats={stats} name={name} beatenPercent={rank?.beatenPercent ?? null} style={next()} />
+          {owner ? (
+            <GetYoursCard year={stats.year} guildInvite={guildInvite} style={next()} />
+          ) : (
+            <ShareCard stats={stats} name={name} beatenPercent={rank?.beatenPercent ?? null} style={next()} />
+          )}
         </div>
       )}
     </>
@@ -359,7 +366,7 @@ function ShareCard({
 
   const fileName = `avatarhistory-wrapped-${stats.year}.png`;
   const file = image && new File([image.blob], fileName, { type: "image/png" });
-  const canShare = !!file && typeof navigator != "undefined" && !!navigator.canShare?.({ files: [file] });
+  const canShareFile = !!file && typeof navigator != "undefined" && !!navigator.canShare?.({ files: [file] });
 
   return (
     <div className={"wrapped-card wide share"} style={style}>
@@ -367,25 +374,24 @@ function ShareCard({
         <span className={"wrapped-label"}>📤 Share your Wrapped</span>
         <strong className={"wrapped-title"}>Show off your year</strong>
         <span className={"wrapped-sub"}>
-          Post your recap card in your server, your story or on X and let your friends find out what their year
-          looked like.
+          Post a link in your server or DMs, it shows up with a preview of your year. Or download the recap card for
+          your story or X.
         </span>
+        <ShareLink year={stats.year} />
         <div className={"hero-actions"}>
           {image ? (
             <>
-              <a className={"btn btn-primary"} href={image.url} download={fileName}>
+              <a className={"btn"} href={image.url} download={fileName}>
                 Download image
               </a>
-              {canShare && (
+              {canShareFile && (
                 <button
                   className={"btn"}
                   onClick={() =>
-                    navigator
-                      .share({ files: [file!], text: `My ${stats.year} in pfps`, url: window.location.origin })
-                      .catch(() => {})
+                    navigator.share({ files: [file!], text: `My ${stats.year} in pfps` }).catch(() => {})
                   }
                 >
-                  Share…
+                  Share image…
                 </button>
               )}
             </>
@@ -398,6 +404,108 @@ function ShareCard({
       </div>
       <div className={"share-preview"}>
         {image ? <img src={image.url} alt={"Your Wrapped share card"} /> : <div className={"spinner"} />}
+      </div>
+    </div>
+  );
+}
+
+// Opt-in public link to this year's Wrapped (/w/<id>), revocable at any time
+function ShareLink({ year }: { year: number }) {
+  const [id, setId] = useState<string | null | undefined>(undefined);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setId(undefined);
+    axios.get(`/api/wrapped/share`, { params: { year } }).then((resp) => setId(resp.data.id), () => setId(null));
+  }, [year]);
+
+  const update = (request: Promise<{ data: { id: string | null } }>) => {
+    setBusy(true);
+    request
+      .then((resp) => setId(resp.data.id))
+      .catch(() => {})
+      .finally(() => setBusy(false));
+  };
+  const url = id ? `${window.location.origin}/w/${id}` : null;
+
+  if (id === undefined) return null;
+  if (!url) {
+    return (
+      <div className={"share-link"}>
+        <button
+          className={"btn btn-primary"}
+          disabled={busy}
+          onClick={() => update(axios.post(`/api/wrapped/share`, { year }))}
+        >
+          🔗 Create share link
+        </button>
+        <span className={"share-note"}>
+          Anyone with the link can see this page: your {year} pfps, usernames and stats. You can turn it off any time.
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className={"share-link"}>
+      <div className={"share-url"}>
+        <input readOnly value={url} aria-label={"Share link"} onFocus={(e) => e.currentTarget.select()} />
+        <button
+          className={"btn btn-primary btn-small"}
+          onClick={() =>
+            navigator.clipboard.writeText(url).then(() => {
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            })
+          }
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </div>
+      <span className={"share-note"}>
+        Your Wrapped is public via this link.{" "}
+        {typeof navigator != "undefined" && "share" in navigator && (
+          <>
+            <button className={"link-button"} onClick={() => navigator.share({ url, text: `My ${year} in pfps` }).catch(() => {})}>
+              Share…
+            </button>{" "}
+            ·{" "}
+          </>
+        )}
+        <a href={url} target={"_blank"} rel={"noreferrer"}>Open</a> ·{" "}
+        <button
+          className={"link-button danger"}
+          disabled={busy}
+          onClick={() => update(axios.delete(`/api/wrapped/share`, { params: { year } }))}
+        >
+          Stop sharing
+        </button>
+      </span>
+    </div>
+  );
+}
+
+// Call to action at the end of a shared Wrapped
+function GetYoursCard({ year, guildInvite, style }: { year: number; guildInvite: string; style: React.CSSProperties }) {
+  return (
+    <div className={"wrapped-card wide share get-yours"} style={style}>
+      <div className={"share-text"}>
+        <span className={"wrapped-label"}>✨ Your turn</span>
+        <strong className={"wrapped-title"}>What did your {year} look like?</strong>
+        <span className={"wrapped-sub"}>
+          avatarhistory archives every pfp and username of the members of our Discord server. Sign in to see your own
+          Wrapped, or join the server so next year&apos;s is ready for you.
+        </span>
+        <div className={"hero-actions"}>
+          <button className={"btn btn-primary"} onClick={() => signIn("discord", { callbackUrl: "/wrapped" })}>
+            Get my Wrapped
+          </button>
+          {guildInvite && (
+            <a className={"btn"} href={guildInvite} target={"_blank"} rel={"noreferrer"}>
+              Join the server ↗
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

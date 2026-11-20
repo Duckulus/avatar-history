@@ -4,3 +4,4 @@ export * from "./entities/avatar";
 export * from "./entities/username";
 export { countUsers } from "./entities/user";
 export * from "./prisma";
+export * from "./entities/wrapped-share";

@@ -1710,3 +1710,63 @@ a.user-row:hover {
     background: rgba(224, 121, 139, 0.2);
     color: var(--danger);
 }
+
+/* ---------- wrapped share link ---------- */
+.share-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.share-url {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    max-width: 30rem;
+    padding: 5px 5px 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.share-url input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.share-note {
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.link-button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent-3);
+    font-size: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.link-button.danger {
+    color: var(--danger);
+}
+
+.link-button:disabled {
+    opacity: 0.5;
+}
+
+.wrapped-card.get-yours {
+    grid-template-columns: minmax(0, 1fr);
+    text-align: left;
+}

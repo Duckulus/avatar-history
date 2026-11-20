@@ -45,6 +45,16 @@ model Admin {
   grantedBy String
 }
 
+// Public link to a user's Wrapped of one year (/w/<id>). Opt-in, deleting the row revokes it.
+model WrappedShare {
+  id        String   @id
+  userId    String
+  year      Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, year])
+}
+
 //next-auth
 
 model Account {

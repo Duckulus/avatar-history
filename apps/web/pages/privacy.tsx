@@ -76,6 +76,13 @@ const Privacy: NextPage<{ operator: Operator }> = ({ operator }) => {
             computed from the anonymous number of avatar changes of all users.
           </li>
           <li>
+            <b>Shared Wrapped links:</b> if you create a share link for your Wrapped, anyone with the link can see
+            that year&apos;s Wrapped: your current username, the avatars and usernames you used that year, your stats
+            and your ranking. Links preview in apps like Discord with an image of it. Nothing is shared unless you
+            create a link, and you can turn a link off at any time on your Wrapped page; it then stops working
+            immediately (previews other apps already cached may stay visible there for a while).
+          </li>
+          <li>
             <b>Administrators:</b> a small number of administrators can view any user&apos;s history in an admin
             panel and hide avatars from the website and the app, for example to remove inappropriate content.
           </li>
