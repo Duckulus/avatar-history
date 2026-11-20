@@ -720,6 +720,11 @@ button {
     color: var(--muted);
 }
 
+.avatar-meta .worn {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
 .avatar-no {
     font-family: var(--font-display);
     font-weight: 700;

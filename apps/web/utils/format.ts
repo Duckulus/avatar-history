@@ -38,3 +38,13 @@ export const formatDateTime = (date: string | Date) =>
     hour: "2-digit",
     minute: "2-digit",
   });
+
+// Rough human readable duration: "3 days", "2 months", "less than an hour"
+export const formatDuration = (ms: number) => {
+  const seconds = Math.max(0, ms / 1000);
+  for (const [unit, size] of UNITS) {
+    if (unit == "minute") break;
+    if (seconds >= size) return plural(Math.floor(seconds / size), unit);
+  }
+  return "less than an hour";
+};

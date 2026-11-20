@@ -2,6 +2,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { avatarUrl } from "../utils/cdn";
 import { RelativeTime } from "./RelativeTime";
+import { formatDuration } from "../utils/format";
 
 // Shows a placeholder instead of the browser's clipped alt text when the file is missing on the CDN
 function AvatarImage({ avatar, alt }: { avatar: AvatarLike; alt: string }) {
@@ -39,6 +40,7 @@ export function AvatarGrid<T extends AvatarLike>({
   actions?: (avatar: T) => ReactNode;
 }) {
   const [open, setOpen] = useState<T | null>(null);
+  const now = Date.now();
 
   if (avatars.length == 0) {
     return (
@@ -56,6 +58,9 @@ export function AvatarGrid<T extends AvatarLike>({
           // avatars arrive newest first; number them chronologically
           const number = avatars.length - index;
           const deleted = !!avatar.deletedAt;
+          // worn until the next (newer) avatar was recorded, the newest one until now
+          const until = index == 0 ? now : new Date(avatars[index - 1].createdAt).getTime();
+          const worn = formatDuration(until - new Date(avatar.createdAt).getTime());
           return (
             <figure
               key={avatar.id}
@@ -76,6 +81,9 @@ export function AvatarGrid<T extends AvatarLike>({
                   {deleted && <span className={"tag danger"}>hidden</span>}
                 </span>
                 <RelativeTime date={avatar.createdAt} />
+                <span className={"worn"}>
+                  {index == 0 ? `worn for ${worn} so far` : `worn for ${worn}`}
+                </span>
               </figcaption>
               {actions && <div className={"avatar-actions"}>{actions(avatar)}</div>}
             </figure>
