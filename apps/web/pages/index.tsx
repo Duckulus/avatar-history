@@ -10,6 +10,7 @@ import {APIGuild} from "discord-api-types/v10";
 import {Panel} from "../components/Layout";
 import {AvatarGrid} from "../components/AvatarGrid";
 import {UsernameTimeline} from "../components/UsernameTimeline";
+import {ProfileStats} from "../components/ProfileStats";
 import {avatarUrl} from "../utils/cdn";
 
 type Tab = "home" | "avatars" | "usernames";
@@ -91,7 +92,12 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
                   <h2>Your <span className={"gradient-text"}>avatars</span></h2>
                   {avatars && <span className={"count"}>{avatars.length} archived</span>}
                 </div>
-                {avatars ? <AvatarGrid avatars={avatars}/> : placeholder("avatars")}
+                {avatars && usernames ? (
+                    <>
+                      <ProfileStats avatars={avatars} usernames={usernames}/>
+                      <AvatarGrid avatars={avatars}/>
+                    </>
+                ) : placeholder("avatars")}
               </>
           ) : (
               <>
