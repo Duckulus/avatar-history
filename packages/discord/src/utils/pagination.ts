@@ -3,119 +3,112 @@ import {
   ButtonBuilder,
   ButtonStyle,
   CommandInteraction,
-  EmbedBuilder,
-  User,
+  ComponentType,
+  ContainerBuilder,
+  MessageFlags,
 } from "discord.js";
 
+// Accent color of the website
+export const ACCENT_COLOR = 0x8c84e0;
+
+/**
+ * Renders a page as a components v2 container. `nav` is the row of paging
+ * buttons, which the renderer should place at the bottom of its container.
+ * It is undefined when there is only one page or the buttons have expired.
+ */
+export type PageRenderer = (
+  page: number,
+  nav: ActionRowBuilder<ButtonBuilder> | undefined
+) => ContainerBuilder;
+
+enum PaginationButton {
+  FIRST = "page:first",
+  PREVIOUS = "page:previous",
+  NEXT = "page:next",
+  LAST = "page:last",
+}
+
 export class Pagination {
-  private interaction: CommandInteraction;
-  private readonly pages: EmbedBuilder[];
-  private index: number;
-  private readonly timeout: number;
-  private readonly ephermal: boolean;
-  private readonly user: User;
+  private index = 0;
 
   constructor(
-    interaction: CommandInteraction,
-    pages: EmbedBuilder[],
-    timeout: number = 180,
-    ephermal: boolean = false
-  ) {
-    this.interaction = interaction;
-    this.user = interaction.user;
-    this.pages = pages;
-    this.index = 0;
-    this.timeout = timeout * 1000;
-    this.ephermal = ephermal;
-  }
+    private readonly interaction: CommandInteraction,
+    private readonly pageCount: number,
+    private readonly render: PageRenderer,
+    private readonly timeoutSeconds = 300,
+    private readonly ephemeral = true
+  ) {}
 
   async start() {
-    const message = await this.interaction.reply({
-      embeds: [this.pages[this.index]],
-      components: [this.row()],
-      ephemeral: this.ephermal,
+    const response = await this.interaction.reply({
+      components: [this.page()],
+      flags: this.ephemeral
+        ? [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral]
+        : [MessageFlags.IsComponentsV2],
+    });
+    if (this.pageCount <= 1) return;
+
+    const collector = response.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      time: this.timeoutSeconds * 1000,
     });
 
-    const collector = message.createMessageComponentCollector();
-
-    setTimeout(() => {
-      this.interaction.editReply({
-        components: [],
-      });
-      collector.stop("timeout");
-    }, this.timeout);
-    collector.on("collect", async (interaction) => {
-      if (interaction.user.id != this.user.id) {
-        await interaction.reply({
-          content: "This is not your embed!",
-          ephemeral: true,
+    collector.on("collect", async (button) => {
+      if (button.user.id != this.interaction.user.id) {
+        await button.reply({
+          content: "Run the command yourself to browse this list.",
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
-      switch (interaction.customId) {
+      switch (button.customId) {
         case PaginationButton.FIRST:
           this.index = 0;
           break;
         case PaginationButton.PREVIOUS:
-          if (this.index > 0) this.index--;
+          this.index = Math.max(0, this.index - 1);
           break;
-        case PaginationButton.STOP:
-          await interaction.update({
-            components: [],
-          });
-          collector.stop();
-          return;
         case PaginationButton.NEXT:
-          if (this.index < this.pages.length - 1) this.index++;
+          this.index = Math.min(this.pageCount - 1, this.index + 1);
           break;
         case PaginationButton.LAST:
-          this.index = this.pages.length - 1;
+          this.index = this.pageCount - 1;
           break;
       }
+      await button.update({ components: [this.page()] });
+    });
 
-      await interaction.update({
-        embeds: [this.pages[this.index]],
-        components: [this.row()],
-      });
+    // remove the buttons once they stop working
+    collector.on("end", () => {
+      this.interaction
+        .editReply({ components: [this.render(this.index, undefined)] })
+        .catch(() => {});
     });
   }
 
-  row() {
-    const previousDisabled = this.index <= 0;
-    const nextDisabled = this.index >= this.pages.length - 1;
-    return new ActionRowBuilder<ButtonBuilder>().addComponents([
-      new ButtonBuilder()
-        .setCustomId(PaginationButton.FIRST)
-        .setLabel("⏮️")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(previousDisabled),
-      new ButtonBuilder()
-        .setCustomId(PaginationButton.PREVIOUS)
-        .setLabel("◀️")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(previousDisabled),
-      new ButtonBuilder()
-        .setCustomId(PaginationButton.STOP)
-        .setLabel("⏹️")
-        .setStyle(ButtonStyle.Danger),
-      new ButtonBuilder()
-        .setCustomId(PaginationButton.NEXT)
-        .setLabel("▶️")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(nextDisabled),
-      new ButtonBuilder()
-        .setCustomId(PaginationButton.LAST)
-        .setLabel("⏭️")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(nextDisabled),
-    ]);
+  private page() {
+    return this.render(this.index, this.pageCount > 1 ? this.nav() : undefined);
   }
-}
 
-enum PaginationButton {
-  FIRST = "0",
-  PREVIOUS = "1",
-  STOP = "2",
-  NEXT = "3",
-  LAST = "4",
+  private nav() {
+    const atStart = this.index <= 0;
+    const atEnd = this.index >= this.pageCount - 1;
+    const button = (id: PaginationButton, emoji: string, disabled: boolean) =>
+      new ButtonBuilder()
+        .setCustomId(id)
+        .setEmoji(emoji)
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(disabled);
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
+      button(PaginationButton.FIRST, "⏮️", atStart),
+      button(PaginationButton.PREVIOUS, "◀️", atStart),
+      new ButtonBuilder()
+        .setCustomId("page:indicator")
+        .setLabel(`${this.index + 1} / ${this.pageCount}`)
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(true),
+      button(PaginationButton.NEXT, "▶️", atEnd),
+      button(PaginationButton.LAST, "⏭️", atEnd)
+    );
+  }
 }

@@ -6,12 +6,19 @@ import {
 import { getUsernamesOfUser } from "@avatar-history/db";
 import {
   CommandInteraction,
-  EmbedBuilder,
+  ContainerBuilder,
+  escapeMarkdown,
+  MessageFlags,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder,
   TimestampStyles,
   User,
 } from "discord.js";
 import { timestamp } from "../../utils/timestamp";
-import { Pagination } from "../../utils/pagination";
+import { ACCENT_COLOR, Pagination } from "../../utils/pagination";
+
+const NAMES_PER_PAGE = 10;
 
 export const UsernamesCommand: SlashCommand = {
   name: "usernames",
@@ -27,7 +34,7 @@ export const UsernamesCommand: SlashCommand = {
   ],
   execute: async (interaction) => {
     const user = interaction.options.getUser("user") || interaction.user;
-    await sendUsernameEmbed(interaction, user);
+    await sendUsernameHistory(interaction, user);
   },
 };
 
@@ -35,48 +42,48 @@ export const UsernamesConextCommand: UserCommand = {
   name: "Usernames",
   type: ApplicationCommandType.User,
   execute: async (interaction, user) => {
-    await sendUsernameEmbed(interaction, user);
+    await sendUsernameHistory(interaction, user);
   },
 };
 
-const sendUsernameEmbed = async (
-  interaction: CommandInteraction,
-  user: User
-) => {
+const sendUsernameHistory = async (interaction: CommandInteraction, user: User) => {
+  // newest first
   const usernames = await getUsernamesOfUser(user.id);
   if (usernames.length == 0) {
     await interaction.reply({
-      content:
-        "No usernames have been archived for this user yet! Try again later",
-      ephemeral: true,
+      content: "No usernames have been archived for this user yet! Try again later",
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
-  let namesPerPage = 5;
-  let pages: EmbedBuilder[] = [];
 
-  for (let i = 0; i < usernames.length; i += namesPerPage) {
-    const embed = new EmbedBuilder()
-      .setTitle(`${user.username}'s Username history`)
-      .setColor("Greyple")
-      .setFooter({
-        text: `${i / namesPerPage + 1}/${Math.ceil(
-          usernames.length / namesPerPage
-        )}`,
-      });
-    for (let j = i; j < i + namesPerPage; j++) {
-      if (usernames[j]) {
-        embed.setDescription(
-          (embed.data.description ? embed.data.description : "") +
-            `\n ${timestamp(
-              usernames[j].createdAt,
-              TimestampStyles.RelativeTime
-            )} ${usernames[j].value}`
-        );
-      }
+  const pageCount = Math.ceil(usernames.length / NAMES_PER_PAGE);
+  await new Pagination(interaction, pageCount, (page, nav) => {
+    const start = page * NAMES_PER_PAGE;
+    const lines = usernames
+      .slice(start, start + NAMES_PER_PAGE)
+      .map(
+        (username, i) =>
+          `**${escapeMarkdown(username.value)}**${start + i == 0 ? " (current)" : ""}\n` +
+          `-# since ${timestamp(username.createdAt, TimestampStyles.LongDate)} ` +
+          `(${timestamp(username.createdAt, TimestampStyles.RelativeTime)})`
+      );
+
+    const container = new ContainerBuilder()
+      .setAccentColor(ACCENT_COLOR)
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `## ${user.username}'s usernames\n-# ${usernames.length} archived`
+        )
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join("\n")));
+
+    if (nav) {
+      container
+        .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+        .addActionRowComponents(nav);
     }
-    pages.push(embed);
-  }
-
-  await new Pagination(interaction, pages, undefined, true).start();
+    return container;
+  }).start();
 };
