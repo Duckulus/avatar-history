@@ -154,6 +154,7 @@ function HomeContent({
 }) {
   return (
       <>
+        <WrappedBanner signedIn={!!name}/>
         <section className={"hero"}>
           <div>
             <span className={"eyebrow"}>Discord profile archive</span>
@@ -208,6 +209,26 @@ function HomeContent({
         </p>
       </>
   );
+}
+
+// The year that is ending; in January still the one before
+const wrappedYear = (now = new Date()) =>
+    now.getMonth() == 0 ? now.getFullYear() - 1 : now.getFullYear();
+
+function WrappedBanner({signedIn}: { signedIn: boolean }) {
+  const year = wrappedYear();
+  const content = (
+      <>
+        <span className={"wrapped-banner-year gradient-text"}>{year}</span>
+        <span className={"wrapped-banner-text"}>
+          <strong>✨ Your {year} Wrapped is here</strong>
+          <span>Your pfp of the year, your Discord persona and a recap card to share.</span>
+        </span>
+        <span className={"btn btn-primary btn-small"}>{signedIn ? "Open my Wrapped →" : "See yours →"}</span>
+      </>
+  );
+  // signed out visitors get a sign in prompt on the Wrapped page itself
+  return <Link className={"wrapped-banner"} href={"/wrapped"}>{content}</Link>;
 }
 
 function Feature({

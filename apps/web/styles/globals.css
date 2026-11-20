@@ -1254,3 +1254,373 @@ a.user-row:hover {
     align-items: center;
     gap: 12px;
 }
+
+/* ---------- wrapped banner (home) ---------- */
+.wrapped-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 0 0 28px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    color: var(--text);
+    text-decoration: none;
+    background:
+        linear-gradient(var(--bg-2), var(--bg-2)) padding-box,
+        linear-gradient(120deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent)) border-box;
+    background-size: 100% 100%, 300% 100%;
+    border: 1.5px solid transparent;
+    box-shadow: 0 16px 40px -24px var(--accent-2);
+    animation: rise 0.6s var(--ease-out) both, banner-flow 6s linear infinite;
+    transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+}
+
+.wrapped-banner:hover {
+    color: var(--text);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 50px -22px var(--accent-2);
+}
+
+@keyframes banner-flow {
+    to { background-position: 0 0, 300% 0; }
+}
+
+.wrapped-banner-year {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.wrapped-banner-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.wrapped-banner-text strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+}
+
+.wrapped-banner-text span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.wrapped-banner .btn {
+    flex-shrink: 0;
+}
+
+/* ---------- wrapped page ---------- */
+.wrapped-hero {
+    margin-bottom: 28px;
+}
+
+.wrapped-hero h1 {
+    font-size: clamp(2.2rem, 7vw, 4.2rem);
+}
+
+.year-switch {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.wrapped-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.wrapped-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+    animation: rise 0.7s var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.wrapped-card.big {
+    grid-column: span 2;
+    background:
+        radial-gradient(120% 140% at 0% 0%, rgba(140, 132, 224, 0.28), transparent 60%),
+        var(--surface);
+}
+
+.wrapped-card.wide {
+    grid-column: 1 / -1;
+}
+
+.wrapped-label {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.wrapped-number {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 14vw, 7.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+}
+
+.wrapped-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1.15;
+}
+
+.wrapped-sub {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.wrapped-sub b {
+    color: var(--text);
+}
+
+.wrapped-emoji {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 3.2rem;
+    opacity: 0.9;
+    animation: float 5s ease-in-out infinite;
+}
+
+.wrapped-card.persona .wrapped-title {
+    padding-right: 56px;
+}
+
+.wrapped-card.persona {
+    background:
+        radial-gradient(120% 120% at 100% 0%, rgba(124, 200, 187, 0.22), transparent 60%),
+        var(--surface);
+}
+
+.wrapped-card.feature-pfp {
+    grid-row: span 2;
+    align-items: center;
+    text-align: center;
+}
+
+.wrapped-card.feature-pfp .wrapped-label {
+    align-self: flex-start;
+}
+
+.wrapped-pfp {
+    width: min(100%, 200px);
+    aspect-ratio: 1;
+    margin: 10px 0 6px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--gradient);
+    border: 4px solid var(--accent-2);
+    box-shadow: 0 0 60px -14px var(--accent-2);
+    animation: pop 0.8s var(--ease-spring) both;
+    animation-delay: 0.4s;
+}
+
+.month-bars {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    align-items: end;
+    gap: 5px;
+    height: 120px;
+    margin: 6px 0;
+}
+
+.month-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    height: 100%;
+}
+
+.month-bar span {
+    width: 100%;
+    height: calc(var(--h) * (100% - 18px));
+    min-height: 3px;
+    border-radius: 6px 6px 3px 3px;
+    background: var(--surface-strong);
+    transform-origin: bottom;
+    animation: grow 0.9s var(--ease-out) both;
+    animation-delay: 0.5s;
+}
+
+.month-bar.top span {
+    background: var(--gradient);
+}
+
+.month-bar small {
+    color: var(--muted);
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+@keyframes grow {
+    from { transform: scaleY(0); }
+}
+
+.wrapped-card.months {
+    grid-column: span 2;
+}
+
+.glowup-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: auto 0;
+}
+
+.glowup-pair figure {
+    margin: 0;
+    text-align: center;
+}
+
+.glowup-pair .mini-avatar {
+    display: block;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 6px;
+}
+
+.glowup-pair figure:last-child .mini-avatar {
+    border: 3px solid var(--accent-3);
+    box-shadow: 0 0 30px -8px var(--accent-3);
+}
+
+.glowup-pair figcaption {
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.glowup-arrow {
+    font-size: 1.6rem;
+    color: var(--accent-3);
+}
+
+.wrapped-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: auto 0;
+}
+
+.wrapped-row .mini-avatar {
+    width: 56px;
+    height: 56px;
+}
+
+.wrapped-collage {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 10px;
+}
+
+.wrapped-collage img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--surface-strong);
+    animation: pop 0.6s var(--ease-spring) both;
+    animation-delay: calc(0.3s + min(var(--j), 40) * 25ms);
+}
+
+.wrapped-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.wrapped-names span {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-strong);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.wrapped-card.share {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    gap: 24px;
+    background:
+        radial-gradient(100% 140% at 100% 100%, rgba(201, 147, 189, 0.22), transparent 60%),
+        var(--surface);
+}
+
+.share-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.share-text .hero-actions {
+    margin: 10px 0 0;
+}
+
+.share-preview {
+    display: grid;
+    place-items: center;
+}
+
+.share-preview img {
+    width: min(100%, 300px);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.9);
+    transform: rotate(2deg);
+    transition: transform 0.4s var(--ease-spring);
+}
+
+.share-preview img:hover {
+    transform: rotate(0deg) scale(1.03);
+}
+
+@media (max-width: 760px) {
+    .wrapped-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wrapped-card.big,
+    .wrapped-card.months,
+    .wrapped-card.feature-pfp {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .wrapped-card.share {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wrapped-banner {
+        flex-wrap: wrap;
+    }
+
+    .wrapped-banner .btn {
+        width: 100%;
+    }
+
+    .wrapped-banner-year {
+        display: none;
+    }
+}

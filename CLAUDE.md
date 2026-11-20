@@ -49,6 +49,8 @@ Internal packages are consumed via their compiled `dist/` output (`main: dist/in
 
 **Web**: next-auth with the Prisma adapter stores `User`/`Account`/`Session` in the same SQLite DB. API routes (`pages/api/*`) map the session to the Discord user id via `utils/id.ts#getDiscordId` (the `Account.providerAccountId`) and filter avatars/usernames by it. `/api/guilds` calls the Discord API with the stored OAuth access token (`guilds` scope). `next.config.js` exposes `GUILD_ID`, `GUILD_INVITE` and `GOOGLE_VERIFICATION_ID` to the client and whitelists `cdn.duckul.us` for `next/image`.
 
+**Wrapped** (`/wrapped`, linked from the navbar and a banner on the home page): year in review computed in the browser (`utils/wrapped.ts`) from `/api/avatars` + `/api/usernames`; only the percentile comes from the server (`/api/wrapped/rank`). The share card is drawn on a canvas (`utils/wrappedCard.ts`) and loads avatars via `/api/avatars/file/[id]` (same origin, the CDN has no CORS headers, which would taint the canvas).
+
 **Admin panel** (`/admin`): roles are `superadmin` (hardcoded `SUPER_ADMIN_ID` in `packages/db/src/entities/admin.ts`), `admin` (rows in the `Admin` table, granted/revoked only by the super admin) and `user`. The next-auth `session` callback adds `discordId` and `role` to the session, so the role is re-evaluated on every request. Admin API routes under `pages/api/admin/` guard themselves with `utils/admin.ts#requireRole`; the client-side `AdminGate` is cosmetic only.
 
 **Soft delete**: `Avatar.deletedAt`/`deletedBy`. `getAvatars()` hides deleted avatars by default (website + bot); the updater must call `getAvatars(true)`, otherwise it would try to re-insert a hidden avatar and hit the primary key.

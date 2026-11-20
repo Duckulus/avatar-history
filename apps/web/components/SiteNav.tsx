@@ -3,13 +3,14 @@ import { NextRouter, useRouter } from "next/router";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-export type NavKey = "home" | "avatars" | "usernames" | "timeline" | "admin";
+export type NavKey = "home" | "avatars" | "usernames" | "timeline" | "wrapped" | "admin";
 
 const useIsomorphicLayoutEffect =
   typeof window != "undefined" ? useLayoutEffect : useEffect;
 
 const activeKey = (router: NextRouter, signedIn: boolean): NavKey | undefined => {
   if (router.pathname.startsWith("/admin")) return "admin";
+  if (router.pathname == "/wrapped") return "wrapped";
   if (router.pathname != "/") return undefined;
   const tab = router.query.tab;
   return signedIn && (tab == "avatars" || tab == "usernames" || tab == "timeline")
@@ -33,6 +34,8 @@ export function SiteNav() {
       { key: "timeline", label: "Timeline", href: "/?tab=timeline" }
     );
   }
+  // also for signed out visitors, the page itself asks them to sign in
+  items.push({ key: "wrapped", label: "Wrapped", href: "/wrapped" });
   if (isAdmin) items.push({ key: "admin", label: "Admin", href: "/admin" });
 
   const container = useRef<HTMLDivElement>(null);
@@ -89,6 +92,7 @@ export function SiteNav() {
             className={"nav-link" + (item.key == active ? " active" : "")}
           >
             {item.key == "admin" && <span className={"pill-dot"} />}
+            {item.key == "wrapped" && <span aria-hidden>✨ </span>}
             {item.label}
           </Link>
         ))}

@@ -46,3 +46,19 @@ export const setAvatarDeleted = async (
       : { deletedAt: null, deletedBy: null },
   });
 };
+
+// Number of visible avatars each user recorded in [from, to). Users without
+// any avatar in that range are missing from the result.
+export const countAvatarsPerUser = async (from: Date, to: Date) => {
+  const groups = await prisma.avatar.groupBy({
+    by: ["userId"],
+    where: { createdAt: { gte: from, lt: to }, deletedAt: null },
+    _count: { _all: true },
+  });
+  return groups.map((group) => group._count._all);
+};
+
+// A single visible avatar
+export const getAvatar = async (id: string) => {
+  return await prisma.avatar.findFirst({ where: { id, deletedAt: null } });
+};
