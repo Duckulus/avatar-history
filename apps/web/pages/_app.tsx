@@ -6,7 +6,9 @@ import { Layout } from "../components/Layout";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <SessionProvider>
+    // pages that load the session in getServerSideProps pass it here, so the
+    // first render already knows whether the user is signed in
+    <SessionProvider session={pageProps.session}>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
         <link

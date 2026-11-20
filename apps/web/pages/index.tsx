@@ -6,6 +6,9 @@ import {signIn, useSession} from "next-auth/react";
 import axios from "axios";
 import {useCallback, useEffect, useState} from "react";
 import {Avatar, Username} from "@prisma/client";
+import {Session} from "next-auth";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "./api/auth/[...nextauth]";
 import {APIGuild} from "discord-api-types/v10";
 import {Panel} from "../components/Layout";
 import {AvatarGrid} from "../components/AvatarGrid";
@@ -20,16 +23,24 @@ const POLL_INTERVAL = 10_000;
 interface Props {
   guildId: string;
   guildInvite: string;
+  session: Session | null;
 }
 
 // Rendered on demand so guild settings come from the runtime environment
 // instead of being baked into the bundle when the docker image is built.
-export const getServerSideProps: GetServerSideProps<Props> = async () => ({
-  props: {
-    guildId: process.env.GUILD_ID ?? "",
-    guildInvite: process.env.GUILD_INVITE ?? "",
-  },
-});
+// The session is loaded here too, otherwise a reload of e.g. /?tab=avatars
+// would briefly render the home tab until the client has fetched the session.
+export const getServerSideProps: GetServerSideProps<Props> = async ({req, res}) => {
+  const session = await getServerSession(req, res, authOptions);
+  return {
+    props: {
+      guildId: process.env.GUILD_ID ?? "",
+      guildInvite: process.env.GUILD_INVITE ?? "",
+      // props must be JSON serializable (no undefined values)
+      session: session ? JSON.parse(JSON.stringify(session)) : null,
+    },
+  };
+};
 
 const Home: NextPage<Props> = ({guildId, guildInvite}) => {
   const {data: session} = useSession();
