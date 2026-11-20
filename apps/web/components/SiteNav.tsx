@@ -56,6 +56,14 @@ export function SiteNav() {
       setIndicator(
         el ? { left: el.offsetLeft, width: el.offsetWidth } : { left: 0, width: 0 }
       );
+      // on phones the links scroll sideways, keep the active one visible
+      const box = container.current;
+      if (el && box && box.scrollWidth > box.clientWidth) {
+        box.scrollTo({
+          left: el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2,
+          behavior: animate ? "smooth" : "auto",
+        });
+      }
     };
     measure();
     window.addEventListener("resize", measure);

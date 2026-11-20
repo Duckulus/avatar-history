@@ -1159,10 +1159,28 @@ a.user-row:hover {
         border-radius: 22px;
     }
 
+    /* too many links for a phone: scroll them sideways instead of letting the
+       nowrap links push the navbar (and with it the page) wider than the screen */
+    .navbar {
+        max-width: 100%;
+    }
+
     .nav-items {
         order: 3;
+        flex: 1 1 100%;
         width: 100%;
         justify-content: space-between;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        /* fade the edges so it's visible that there is more to scroll */
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+    }
+
+    .nav-items::-webkit-scrollbar {
+        display: none;
     }
 
     .nav-link {
