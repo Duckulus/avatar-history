@@ -32,8 +32,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => ({
 const Home: NextPage<Props> = ({guildId, guildInvite}) => {
   const {data: session} = useSession();
   const router = useRouter();
-  const [avatars, setAvatars] = useState<Avatar[]>([]);
-  const [usernames, setUsernames] = useState<Username[]>([]);
+  const [avatars, setAvatars] = useState<Avatar[] | null>(null);
+  const [usernames, setUsernames] = useState<Username[] | null>(null);
   const [inGuild, setInGuild] = useState<boolean | null>(null);
 
   const requested = router.query.tab;
@@ -67,7 +67,7 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
           {tab == "home" ? (
               <HomeContent
                   name={session?.user?.name ?? null}
-                  avatars={avatars}
+                  avatars={avatars ?? []}
                   image={session?.user?.image ?? null}
                   guildInvite={guildInvite}
               />
@@ -75,17 +75,17 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
               <>
                 <div className={"section-head"}>
                   <h2>Your <span className={"gradient-text"}>avatars</span></h2>
-                  <span className={"count"}>{avatars.length} archived</span>
+                  {avatars && <span className={"count"}>{avatars.length} archived</span>}
                 </div>
-                <AvatarGrid avatars={avatars}/>
+                {avatars ? <AvatarGrid avatars={avatars}/> : <div className={"spinner"} role={"status"} aria-label={"Loading avatars"}/>}
               </>
           ) : (
               <>
                 <div className={"section-head"}>
                   <h2>Your <span className={"gradient-text"}>usernames</span></h2>
-                  <span className={"count"}>{usernames.length} archived</span>
+                  {usernames && <span className={"count"}>{usernames.length} archived</span>}
                 </div>
-                <UsernameTimeline usernames={usernames}/>
+                {usernames ? <UsernameTimeline usernames={usernames}/> : <div className={"spinner"} role={"status"} aria-label={"Loading usernames"}/>}
               </>
           )}
         </Panel>
