@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ReactNode, useEffect, useState } from "react";
+import { Portal } from "./Portal";
 import { avatarUrl } from "../utils/cdn";
 import { RelativeTime } from "./RelativeTime";
 import { formatDuration } from "../utils/format";
@@ -10,7 +11,11 @@ function AvatarImage({ avatar, alt }: { avatar: AvatarLike; alt: string }) {
   const [failed, setFailed] = useState(false);
   if (failed) {
     return (
-      <span className={"avatar-fallback"} role={"img"} aria-label={`${alt} (unavailable)`}>
+      <span
+        className={"avatar-fallback"}
+        role={"img"}
+        aria-label={`${alt} (unavailable)`}
+      >
         <span aria-hidden>?</span>
         <small>unavailable</small>
       </span>
@@ -76,7 +81,9 @@ export function AvatarGrid<T extends AvatarLike>({
               <figcaption className={"avatar-meta"}>
                 <span className={"avatar-no"}>
                   #{number}
-                  {index == 0 && !deleted && <span className={"tag"}>latest</span>}
+                  {index == 0 && !deleted && (
+                    <span className={"tag"}>latest</span>
+                  )}
                   {deleted && <span className={"tag danger"}>hidden</span>}
                 </span>
                 <RelativeTime date={avatar.createdAt} />
@@ -84,7 +91,9 @@ export function AvatarGrid<T extends AvatarLike>({
                   {index == 0 ? `worn for ${worn} so far` : `worn for ${worn}`}
                 </span>
               </figcaption>
-              {actions && <div className={"avatar-actions"}>{actions(avatar)}</div>}
+              {actions && (
+                <div className={"avatar-actions"}>{actions(avatar)}</div>
+              )}
             </figure>
           );
         })}
@@ -122,24 +131,37 @@ function Lightbox({
       .then(() => setCopied(true))
       .catch(() => setCopied(false));
 
+  // portaled: the panel's backdrop-filter would otherwise be the containing
+  // block of this position: fixed overlay
   return (
-    <div className={"lightbox"} onClick={onClose} role={"dialog"} aria-modal>
-      <div className={"lightbox-inner"} onClick={(e) => e.stopPropagation()}>
-        <div className={"lightbox-image"}>
-          <AvatarImage avatar={avatar} alt={"Avatar"} />
-        </div>
-        <div className={"hero-actions"}>
-          <button className={"btn btn-primary"} onClick={copy}>
-            {copied == null ? "Copy link" : copied ? "Copied ✓" : "Copy failed"}
-          </button>
-          <a className={"btn"} href={url} target={"_blank"} rel={"noreferrer"}>
-            Open original ↗
-          </a>
-          <button className={"btn"} onClick={onClose}>
-            Close
-          </button>
+    <Portal>
+      <div className={"lightbox"} onClick={onClose} role={"dialog"} aria-modal>
+        <div className={"lightbox-inner"} onClick={(e) => e.stopPropagation()}>
+          <div className={"lightbox-image"}>
+            <AvatarImage avatar={avatar} alt={"Avatar"} />
+          </div>
+          <div className={"hero-actions"}>
+            <button className={"btn btn-primary"} onClick={copy}>
+              {copied == null
+                ? "Copy link"
+                : copied
+                  ? "Copied ✓"
+                  : "Copy failed"}
+            </button>
+            <a
+              className={"btn"}
+              href={url}
+              target={"_blank"}
+              rel={"noreferrer"}
+            >
+              Open original ↗
+            </a>
+            <button className={"btn"} onClick={onClose}>
+              Close
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Portal>
   );
 }

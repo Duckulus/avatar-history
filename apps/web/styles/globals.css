@@ -156,20 +156,13 @@ button {
     border-radius: var(--radius);
     padding: clamp(20px, 4vw, 40px);
     box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
-    isolation: isolate;
-}
-
-/* the blur lives on a pseudo element: backdrop-filter on .panel itself would make it
-   the containing block for position: fixed children like the lightbox */
-.panel::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
+    /* Directly on the panel: on a pseudo element inside it, Chrome dropped the
+       blur while anything in the panel was animating (spinner, cards popping in),
+       so the panel turned from grey to blue once loading was done. This makes the
+       panel the containing block for position: fixed children, so overlays like
+       the lightbox are portaled to <body>. */
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    pointer-events: none;
 }
 
 /* gradient hairline border */
@@ -187,8 +180,7 @@ button {
 }
 
 .page-enter {
-    /* backwards, not both: a filled transform/filter animation keeps the panel a
-       containing block for position: fixed children (the lightbox) */
+    /* backwards, not both: a filled filter animation would stay applied to the panel */
     animation: page-in 0.6s var(--ease-out) backwards;
 }
 
