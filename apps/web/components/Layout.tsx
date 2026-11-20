@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
 import { SiteNav } from "./SiteNav";
+import { Footer } from "./Footer";
 
 // Rendered once in _app so the navbar persists across page navigations
 export function Layout({ children }: PropsWithChildren) {
@@ -15,6 +16,7 @@ export function Layout({ children }: PropsWithChildren) {
       <div className={"layout"}>
         <SiteNav />
         {children}
+        <Footer />
       </div>
     </>
   );

@@ -51,6 +51,8 @@ Internal packages are consumed via their compiled `dist/` output (`main: dist/in
 
 **Wrapped** (`/wrapped`, linked from the navbar and a banner on the home page): year in review computed in the browser (`utils/wrapped.ts`) from `/api/avatars` + `/api/usernames`; only the percentile comes from the server (`/api/wrapped/rank`). The share card is drawn on a canvas (`utils/wrappedCard.ts`) and loads avatars via `/api/avatars/file/[id]` (same origin, the CDN has no CORS headers, which would taint the canvas).
 
+**Legal pages** (`/privacy`, `/terms`, linked from the footer): operator details come from `LEGAL_NAME`/`LEGAL_ADDRESS`/`LEGAL_EMAIL`/`LEGAL_HOSTING` at request time, so personal data stays out of the repo. Keep the privacy policy in sync when changing what data is collected, who can see it, or adding third parties (fonts are self-hosted via `@fontsource` for that reason).
+
 **Admin panel** (`/admin`): roles are `superadmin` (hardcoded `SUPER_ADMIN_ID` in `packages/db/src/entities/admin.ts`), `admin` (rows in the `Admin` table, granted/revoked only by the super admin) and `user`. The next-auth `session` callback adds `discordId` and `role` to the session, so the role is re-evaluated on every request. Admin API routes under `pages/api/admin/` guard themselves with `utils/admin.ts#requireRole`; the client-side `AdminGate` is cosmetic only.
 
 **Soft delete**: `Avatar.deletedAt`/`deletedBy`. `getAvatars()` hides deleted avatars by default (website + bot); the updater must call `getAvatars(true)`, otherwise it would try to re-insert a hidden avatar and hit the primary key.
