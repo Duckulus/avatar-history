@@ -4,10 +4,11 @@ import { GUILD_ID } from "@avatar-history/env";
 import { updateAvatars } from "./avatars";
 import { updateUsernames } from "./usernames";
 import { client } from "./client";
-import { countAvatars, countUsers } from "@avatar-history/db";
+import { countAvatars, countUsers, pruneUpdateRuns, recordUpdateRun } from "@avatar-history/db";
 import { logger } from "@avatar-history/logging";
 
 let running = false;
+let runsSincePrune = 0;
 
 // Called every 30s by cron. Runs are skipped while the previous one is still
 // in progress so slow runs can't pile up.
@@ -17,14 +18,43 @@ export const update = async () => {
     return;
   }
   running = true;
+  const startedAt = new Date();
+  const avatars = { added: 0, failedDownloads: 0 };
+  const usernames = { added: 0 };
+  let members = 0;
+  let error: string | null = null;
   try {
-    await runUpdate();
+    members = await runUpdate(avatars, usernames);
+  } catch (e) {
+    error = e instanceof Error ? e.message : String(e);
+    logger.error("Update failed", e);
   } finally {
     running = false;
   }
+  // stats for the health page of the admin panel; never let them break the loop
+  try {
+    await recordUpdateRun({
+      startedAt,
+      durationMs: Date.now() - startedAt.getTime(),
+      members,
+      newAvatars: avatars.added,
+      newUsernames: usernames.added,
+      failedDownloads: avatars.failedDownloads,
+      error,
+    });
+    if (++runsSincePrune >= 120) {
+      runsSincePrune = 0;
+      await pruneUpdateRuns();
+    }
+  } catch (e) {
+    logger.error("Could not record update run", e);
+  }
 };
 
-const runUpdate = async () => {
+const runUpdate = async (
+  avatarProgress: { added: number; failedDownloads: number },
+  usernameProgress: { added: number }
+) => {
   const members = await fetchMembers();
   const [userCount, avatarCount] = await Promise.all([countUsers(), countAvatars()]);
   client.user!.setPresence({
@@ -36,8 +66,9 @@ const runUpdate = async () => {
       },
     ],
   });
-  await updateAvatars(members);
-  await updateUsernames(members);
+  await updateAvatars(members, avatarProgress);
+  await updateUsernames(members, usernameProgress);
+  return members.length;
 };
 
 const fetchMembers = async (): Promise<APIGuildMember[]> => {

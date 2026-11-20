@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Panel } from "../../components/Layout";
 import { AdminGate } from "../../components/AdminGate";
 import { MiniAvatar } from "../../components/MiniAvatar";
+import { AdminHealth } from "../../components/AdminHealth";
 import { formatDate, plural } from "../../utils/format";
 
 interface UserOverview {
@@ -53,7 +54,14 @@ const AdminPage: NextPage = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const isSuperAdmin = session?.role == "superadmin";
-  const tab = router.query.tab == "admins" && isSuperAdmin ? "admins" : "users";
+  const requested = router.query.tab;
+  const tab =
+    requested == "admins" && isSuperAdmin ? "admins" : requested == "health" ? "health" : "users";
+  const tabs = [
+    { key: "users", label: "Users", href: "/admin" },
+    { key: "health", label: "Health", href: "/admin?tab=health" },
+    ...(isSuperAdmin ? [{ key: "admins", label: "Admins", href: "/admin?tab=admins" }] : []),
+  ];
 
   return (
       <AdminGate>
@@ -64,21 +72,14 @@ const AdminPage: NextPage = () => {
             </h2>
             {isSuperAdmin && <span className={"tag violet"}>super admin</span>}
           </div>
-          {isSuperAdmin && (
-            <div className={"tabs"}>
-              <Link href={"/admin"} shallow className={"tab" + (tab == "users" ? " active" : "")}>
-                Users
+          <div className={"tabs"}>
+            {tabs.map((t) => (
+              <Link key={t.key} href={t.href} shallow className={"tab" + (tab == t.key ? " active" : "")}>
+                {t.label}
               </Link>
-              <Link
-                href={"/admin?tab=admins"}
-                shallow
-                className={"tab" + (tab == "admins" ? " active" : "")}
-              >
-                Admins
-              </Link>
-            </div>
-          )}
-          {tab == "users" ? <Users /> : <Admins />}
+            ))}
+          </div>
+          {tab == "users" ? <Users /> : tab == "health" ? <AdminHealth /> : <Admins />}
         </Panel>
       </AdminGate>
   );

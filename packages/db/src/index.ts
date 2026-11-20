@@ -5,3 +5,5 @@ export * from "./entities/username";
 export { countUsers } from "./entities/user";
 export * from "./prisma";
 export * from "./entities/wrapped-share";
+export * from "./entities/profile-share";
+export * from "./entities/update-run";

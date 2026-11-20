@@ -55,6 +55,29 @@ model WrappedShare {
   @@unique([userId, year])
 }
 
+// Public link to a user's whole profile (/u/<id>). Opt-in, deleting the row revokes it.
+model ProfileShare {
+  id        String   @id
+  userId    String   @unique
+  createdAt DateTime @default(now())
+}
+
+// One row per run of the update loop, for the health page of the admin panel.
+// Only the last few days are kept (see src/entities/update-run.ts).
+model UpdateRun {
+  id              Int      @id @default(autoincrement())
+  startedAt       DateTime
+  durationMs      Int
+  members         Int      @default(0)
+  newAvatars      Int      @default(0)
+  newUsernames    Int      @default(0)
+  failedDownloads Int      @default(0)
+  // set when the run failed; the counts are then what was done until then
+  error           String?
+
+  @@index([startedAt])
+}
+
 //next-auth
 
 model Account {

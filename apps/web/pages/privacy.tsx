@@ -83,6 +83,14 @@ const Privacy: NextPage<{ operator: Operator }> = ({ operator }) => {
             immediately (previews other apps already cached may stay visible there for a while).
           </li>
           <li>
+            <b>Shared profile links:</b> if you create a link to your profile, anyone with the link can see your
+            current username and all avatars and usernames we archived for you (avatars hidden by an administrator
+            stay hidden), plus stats computed from them. Links preview in apps like Discord with an image showing
+            your recent avatars. Nothing is shared unless you create a link, and you can turn it off at any time on
+            the home page; it then stops working immediately (previews other apps already cached may stay visible
+            there for a while).
+          </li>
+          <li>
             <b>Administrators:</b> a small number of administrators can view any user&apos;s history in an admin
             panel and hide avatars from the website and the app, for example to remove inappropriate content.
           </li>

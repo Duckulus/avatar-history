@@ -23,6 +23,7 @@ import {
 } from "../utils/wrapped";
 import { renderWrappedCard } from "../utils/wrappedCard";
 import type { WrappedRank } from "../utils/rank";
+import { ShareLink } from "../components/ShareLink";
 
 interface Props {
   session: Session | null;
@@ -377,7 +378,14 @@ function ShareCard({
           Post a link in your server or DMs, it shows up with a preview of your year. Or download the recap card for
           your story or X.
         </span>
-        <ShareLink year={stats.year} />
+        <ShareLink
+          endpoint={"/api/wrapped/share"}
+          params={{ year: stats.year }}
+          path={"/w"}
+          shareText={`My ${stats.year} in pfps`}
+          offNote={`Anyone with the link can see this page: your ${stats.year} pfps, usernames and stats. You can turn it off any time.`}
+          onNote={"Your Wrapped is public via this link."}
+        />
         <div className={"hero-actions"}>
           {image ? (
             <>
@@ -405,82 +413,6 @@ function ShareCard({
       <div className={"share-preview"}>
         {image ? <img src={image.url} alt={"Your Wrapped share card"} /> : <div className={"spinner"} />}
       </div>
-    </div>
-  );
-}
-
-// Opt-in public link to this year's Wrapped (/w/<id>), revocable at any time
-function ShareLink({ year }: { year: number }) {
-  const [id, setId] = useState<string | null | undefined>(undefined);
-  const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    setId(undefined);
-    axios.get(`/api/wrapped/share`, { params: { year } }).then((resp) => setId(resp.data.id), () => setId(null));
-  }, [year]);
-
-  const update = (request: Promise<{ data: { id: string | null } }>) => {
-    setBusy(true);
-    request
-      .then((resp) => setId(resp.data.id))
-      .catch(() => {})
-      .finally(() => setBusy(false));
-  };
-  const url = id ? `${window.location.origin}/w/${id}` : null;
-
-  if (id === undefined) return null;
-  if (!url) {
-    return (
-      <div className={"share-link"}>
-        <button
-          className={"btn btn-primary"}
-          disabled={busy}
-          onClick={() => update(axios.post(`/api/wrapped/share`, { year }))}
-        >
-          🔗 Create share link
-        </button>
-        <span className={"share-note"}>
-          Anyone with the link can see this page: your {year} pfps, usernames and stats. You can turn it off any time.
-        </span>
-      </div>
-    );
-  }
-  return (
-    <div className={"share-link"}>
-      <div className={"share-url"}>
-        <input readOnly value={url} aria-label={"Share link"} onFocus={(e) => e.currentTarget.select()} />
-        <button
-          className={"btn btn-primary btn-small"}
-          onClick={() =>
-            navigator.clipboard.writeText(url).then(() => {
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            })
-          }
-        >
-          {copied ? "Copied!" : "Copy"}
-        </button>
-      </div>
-      <span className={"share-note"}>
-        Your Wrapped is public via this link.{" "}
-        {typeof navigator != "undefined" && "share" in navigator && (
-          <>
-            <button className={"link-button"} onClick={() => navigator.share({ url, text: `My ${year} in pfps` }).catch(() => {})}>
-              Share…
-            </button>{" "}
-            ·{" "}
-          </>
-        )}
-        <a href={url} target={"_blank"} rel={"noreferrer"}>Open</a> ·{" "}
-        <button
-          className={"link-button danger"}
-          disabled={busy}
-          onClick={() => update(axios.delete(`/api/wrapped/share`, { params: { year } }))}
-        >
-          Stop sharing
-        </button>
-      </span>
     </div>
   );
 }

@@ -7,7 +7,7 @@ const DESCRIPTION =
 
 // Pages that set their own description and link preview tags. Crawlers take
 // the first og:image, so the defaults must not be rendered for them at all.
-const OWN_META_PAGES = ["/w/[id]"];
+const OWN_META_PAGES = ["/w/[id]", "/u/[id]"];
 
 export default function Document(props: DocumentProps) {
   const defaults = !OWN_META_PAGES.includes(props.__NEXT_DATA__.page);

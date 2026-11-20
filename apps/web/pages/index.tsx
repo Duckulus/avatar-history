@@ -16,6 +16,7 @@ import {UsernameTimeline} from "../components/UsernameTimeline";
 import {ProfileStats} from "../components/ProfileStats";
 import {HistoryTimeline} from "../components/HistoryTimeline";
 import {avatarUrl} from "../utils/cdn";
+import {ShareLink} from "../components/ShareLink";
 
 type Tab = "home" | "avatars" | "usernames" | "timeline";
 const POLL_INTERVAL = 10_000;
@@ -187,6 +188,8 @@ function HomeContent({
           <Orbit avatars={avatars} image={image}/>
         </section>
 
+        {name && <ProfileShareCard/>}
+
         <div className={"features"}>
           <Feature i={0} icon={"🤖"} title={"Tracked automatically"}>
             A Discord bot watches the server and records every new pfp and username.
@@ -208,6 +211,29 @@ function HomeContent({
           <i>not</i> stored or accessible.
         </p>
       </>
+  );
+}
+
+// Opt-in public link to the whole profile (/u/<id>)
+function ProfileShareCard() {
+  return (
+      <section className={"profile-share"}>
+        <div>
+          <span className={"eyebrow"}>📤 Share your profile</span>
+          <h3>Show off your pfp history</h3>
+          <p className={"lead"}>
+            Get a public link to your avatars and usernames. It shows up with a preview in Discord.
+          </p>
+        </div>
+        <ShareLink
+            endpoint={"/api/profile/share"}
+            path={"/u"}
+            shareText={"My Discord pfp history"}
+            createLabel={"🔗 Create profile link"}
+            offNote={"Anyone with the link can see all your archived avatars and usernames. Hidden avatars stay hidden. You can turn it off any time."}
+            onNote={"Your profile is public via this link."}
+        />
+      </section>
   );
 }
 

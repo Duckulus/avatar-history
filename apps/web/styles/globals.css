@@ -1788,3 +1788,250 @@ a.user-row:hover {
     grid-template-columns: minmax(0, 1fr);
     text-align: left;
 }
+
+/* ---------- shared profile ---------- */
+.profile-head {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.profile-head h2 {
+    margin: 0 0 4px;
+}
+
+.profile-head .eyebrow {
+    margin-bottom: 8px;
+}
+
+.profile-head .count {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    background: var(--surface-strong);
+    object-fit: cover;
+}
+
+.profile-share {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: center;
+    margin: 32px 0;
+    padding: 22px 24px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.profile-share h3 {
+    margin: 0 0 6px;
+}
+
+.profile-share .lead {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.profile-share .eyebrow {
+    margin-bottom: 10px;
+}
+
+.profile-share .share-link {
+    margin-top: 0;
+}
+
+.get-yours-callout {
+    margin: 28px 0 0;
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text);
+}
+
+@media (max-width: 760px) {
+    .profile-share {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .profile-head {
+        gap: 14px;
+    }
+
+    .profile-avatar {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+/* ---------- admin health ---------- */
+.health-section {
+    margin-top: 32px;
+}
+
+.health-section .section-head {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-bottom: 8px;
+}
+
+.health-section h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* status: icon + label carry the meaning, the tint only supports it */
+.status-tile.good { border-color: rgba(124, 200, 187, 0.45); background: rgba(124, 200, 187, 0.08); }
+.status-tile.warning { border-color: rgba(226, 194, 126, 0.45); background: rgba(226, 194, 126, 0.08); }
+.status-tile.critical { border-color: rgba(224, 121, 139, 0.5); background: rgba(224, 121, 139, 0.1); }
+.status-tile strong { font-size: 1.5rem; }
+
+.danger-text {
+    color: var(--danger);
+}
+
+.chart {
+    position: relative;
+}
+
+.chart-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    color: var(--muted);
+}
+
+.chart-legend span, .chart-tooltip span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chart-legend i, .chart-tooltip i {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.chart-plot {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+    touch-action: pan-y;
+}
+
+.chart-plot svg {
+    display: block;
+    overflow: visible;
+}
+
+.chart-grid {
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 1;
+}
+
+.chart-axis {
+    fill: var(--muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+.chart-crosshair {
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 1;
+}
+
+.chart-ring {
+    stroke: var(--bg-2);
+    stroke-width: 2;
+}
+
+.chart-alert {
+    fill: var(--danger);
+    stroke: var(--bg-2);
+    stroke-width: 2;
+}
+
+.chart-tooltip {
+    position: absolute;
+    top: 0;
+    transform: translate(-50%, -100%);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(18, 16, 40, 0.95);
+    color: var(--text);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.chart-tooltip .chart-note {
+    color: var(--muted);
+}
+
+.chart-table {
+    max-height: 320px;
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.chart-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.chart-table th, .chart-table td {
+    padding: 7px 12px;
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+}
+
+.chart-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-2);
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.chart-table td:last-child {
+    white-space: normal;
+}
+
+/* never wider than the panel on phones */
+.tabs {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+@media (max-width: 420px) {
+    .tabs .tab {
+        padding: 6px 12px;
+    }
+}
