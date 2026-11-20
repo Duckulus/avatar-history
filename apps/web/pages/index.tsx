@@ -11,9 +11,10 @@ import {Panel} from "../components/Layout";
 import {AvatarGrid} from "../components/AvatarGrid";
 import {UsernameTimeline} from "../components/UsernameTimeline";
 import {ProfileStats} from "../components/ProfileStats";
+import {HistoryTimeline} from "../components/HistoryTimeline";
 import {avatarUrl} from "../utils/cdn";
 
-type Tab = "home" | "avatars" | "usernames";
+type Tab = "home" | "avatars" | "usernames" | "timeline";
 const POLL_INTERVAL = 10_000;
 
 interface Props {
@@ -41,7 +42,7 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
 
   const requested = router.query.tab;
   const tab: Tab =
-      session && (requested == "avatars" || requested == "usernames")
+      session && (requested == "avatars" || requested == "usernames" || requested == "timeline")
           ? requested
           : "home";
 
@@ -99,6 +100,13 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
                     </>
                 ) : placeholder("avatars")}
               </>
+          ) : tab == "timeline" ? (
+              <>
+                <div className={"section-head"}>
+                  <h2>Your <span className={"gradient-text"}>timeline</span></h2>
+                </div>
+                {avatars && usernames ? <HistoryTimeline avatars={avatars} usernames={usernames}/> : placeholder("history")}
+              </>
           ) : (
               <>
                 <div className={"section-head"}>
@@ -143,6 +151,7 @@ function HomeContent({
                   <>
                     <Link className={"btn btn-primary"} href={"/?tab=avatars"} shallow>View avatars</Link>
                     <Link className={"btn"} href={"/?tab=usernames"} shallow>View usernames</Link>
+                    <Link className={"btn"} href={"/?tab=timeline"} shallow>View timeline</Link>
                   </>
               ) : (
                   <button className={"btn btn-primary"} onClick={() => signIn("discord")}>

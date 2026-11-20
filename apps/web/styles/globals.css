@@ -1222,3 +1222,37 @@ a.user-row:hover {
 .profile-stats .stat strong {
     font-size: 1.35rem;
 }
+
+/* ---------- combined history ---------- */
+.timeline.history li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.timeline.history .mini-avatar,
+.timeline.history .event-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.timeline.history .event-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--surface-strong);
+    font-size: 1.1rem;
+}
+
+.timeline.history .name em {
+    font-style: normal;
+    color: var(--accent-2);
+}
+
+@media (max-width: 420px) {
+    .nav-link {
+        padding: 7px 7px;
+        font-size: 0.8rem;
+    }
+}

@@ -3,7 +3,7 @@ import { NextRouter, useRouter } from "next/router";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-export type NavKey = "home" | "avatars" | "usernames" | "admin";
+export type NavKey = "home" | "avatars" | "usernames" | "timeline" | "admin";
 
 const useIsomorphicLayoutEffect =
   typeof window != "undefined" ? useLayoutEffect : useEffect;
@@ -12,7 +12,9 @@ const activeKey = (router: NextRouter, signedIn: boolean): NavKey | undefined =>
   if (router.pathname.startsWith("/admin")) return "admin";
   if (router.pathname != "/") return undefined;
   const tab = router.query.tab;
-  return signedIn && (tab == "avatars" || tab == "usernames") ? tab : "home";
+  return signedIn && (tab == "avatars" || tab == "usernames" || tab == "timeline")
+    ? tab
+    : "home";
 };
 
 export function SiteNav() {
@@ -27,7 +29,8 @@ export function SiteNav() {
   if (session) {
     items.push(
       { key: "avatars", label: "Avatars", href: "/?tab=avatars" },
-      { key: "usernames", label: "Usernames", href: "/?tab=usernames" }
+      { key: "usernames", label: "Usernames", href: "/?tab=usernames" },
+      { key: "timeline", label: "Timeline", href: "/?tab=timeline" }
     );
   }
   if (isAdmin) items.push({ key: "admin", label: "Admin", href: "/admin" });
