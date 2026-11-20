@@ -1,4 +1,4 @@
-import { formatDate } from "../utils/format";
+import { RelativeTime } from "./RelativeTime";
 
 export function UsernameTimeline({
   usernames,
@@ -19,7 +19,9 @@ export function UsernameTimeline({
         <li key={username.id} style={{ "--i": index } as React.CSSProperties}>
           <span className={"name"}>{username.value}</span>
           {index == 0 && <span className={"tag"}>current</span>}
-          <time>since {formatDate(username.createdAt)}</time>
+          <span className={"since"}>
+            recorded <RelativeTime date={username.createdAt} />
+          </span>
         </li>
       ))}
     </ol>

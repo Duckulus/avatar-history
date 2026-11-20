@@ -8,7 +8,8 @@ import { Panel } from "../../../components/Layout";
 import { AdminGate } from "../../../components/AdminGate";
 import { AvatarGrid } from "../../../components/AvatarGrid";
 import { UsernameTimeline } from "../../../components/UsernameTimeline";
-import { formatDate, plural } from "../../../utils/format";
+import { plural } from "../../../utils/format";
+import { RelativeTime } from "../../../components/RelativeTime";
 import { MiniAvatar } from "../../../components/MiniAvatar";
 
 interface AdminAvatar {
@@ -103,7 +104,7 @@ const AdminUserPage: NextPage = () => {
                   <>
                     {avatar.deletedAt && (
                       <div className={"mono"} style={{ marginBottom: 6 }}>
-                        hidden {formatDate(avatar.deletedAt)}
+                        hidden <RelativeTime date={avatar.deletedAt} />
                         {avatar.deletedBy && (
                           <> by {avatar.deletedBy == session?.discordId ? "you" : avatar.deletedBy}</>
                         )}

@@ -879,7 +879,7 @@ button {
     word-break: break-all;
 }
 
-.timeline time {
+.timeline .since {
     display: block;
     color: var(--muted);
     font-size: 0.8rem;

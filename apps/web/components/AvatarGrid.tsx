@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ReactNode, useEffect, useState } from "react";
 import { avatarUrl } from "../utils/cdn";
-import { formatDate } from "../utils/format";
+import { RelativeTime } from "./RelativeTime";
 
 // Shows a placeholder instead of the browser's clipped alt text when the file is missing on the CDN
 function AvatarImage({ avatar, alt }: { avatar: AvatarLike; alt: string }) {
@@ -75,7 +75,7 @@ export function AvatarGrid<T extends AvatarLike>({
                   {index == 0 && !deleted && <span className={"tag"}>latest</span>}
                   {deleted && <span className={"tag danger"}>hidden</span>}
                 </span>
-                <time>{formatDate(avatar.createdAt)}</time>
+                <RelativeTime date={avatar.createdAt} />
               </figcaption>
               {actions && <div className={"avatar-actions"}>{actions(avatar)}</div>}
             </figure>
