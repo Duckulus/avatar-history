@@ -7,6 +7,7 @@ require("dotenv").config({
 export const DISCORD_TOKEN = process.env.DISCORD_TOKEN || "";
 export const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID || "";
 export const GUILD_ID = process.env.GUILD_ID || "";
+export const GUILD_INVITE = process.env.GUILD_INVITE || "";
 // Channel for the welcome message. Falls back to the guild's system channel.
 export const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID || "";
 

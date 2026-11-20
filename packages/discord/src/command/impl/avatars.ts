@@ -13,7 +13,6 @@ import {
   ContainerBuilder,
   MediaGalleryBuilder,
   MediaGalleryItemBuilder,
-  MessageFlags,
   SectionBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -23,6 +22,8 @@ import {
 } from "discord.js";
 import { cdn } from "../../utils/cdn";
 import { timestamp } from "../../utils/timestamp";
+import { promoFooter } from "../../utils/links";
+import { replyNotTracked } from "../../utils/notTracked";
 
 const AVATARS_PER_PAGE = 4;
 
@@ -56,10 +57,7 @@ const sendAvatarHistory = async (interaction: CommandInteraction, user: User) =>
   // newest first
   const avatars = await getAvatarsOfUser(user.id);
   if (avatars.length == 0) {
-    await interaction.reply({
-      content: "No avatars have been archived for this user yet! Try again later",
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyNotTracked(interaction, user, "avatars");
     return;
   }
 
@@ -118,6 +116,6 @@ const sendAvatarHistory = async (interaction: CommandInteraction, user: User) =>
         .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
         .addActionRowComponents(nav);
     }
-    return container;
+    return container.addTextDisplayComponents(promoFooter());
   }).start();
 };

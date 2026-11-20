@@ -5,10 +5,12 @@ import {
 } from "discord-api-types/v10";
 import { getUsernamesOfUser } from "@avatar-history/db";
 import {
+  ButtonBuilder,
+  ButtonStyle,
   CommandInteraction,
+  SectionBuilder,
   ContainerBuilder,
   escapeMarkdown,
-  MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
   TextDisplayBuilder,
@@ -17,6 +19,9 @@ import {
 } from "discord.js";
 import { timestamp } from "../../utils/timestamp";
 import { ACCENT_COLOR, Pagination } from "../../utils/pagination";
+import { WEB_URL } from "@avatar-history/env";
+import { promoFooter } from "../../utils/links";
+import { replyNotTracked } from "../../utils/notTracked";
 
 const NAMES_PER_PAGE = 10;
 
@@ -50,10 +55,7 @@ const sendUsernameHistory = async (interaction: CommandInteraction, user: User) 
   // newest first
   const usernames = await getUsernamesOfUser(user.id);
   if (usernames.length == 0) {
-    await interaction.reply({
-      content: "No usernames have been archived for this user yet! Try again later",
-      flags: MessageFlags.Ephemeral,
-    });
+    await replyNotTracked(interaction, user, "usernames");
     return;
   }
 
@@ -69,13 +71,22 @@ const sendUsernameHistory = async (interaction: CommandInteraction, user: User) 
           `(${timestamp(username.createdAt, TimestampStyles.RelativeTime)})`
       );
 
-    const container = new ContainerBuilder()
-      .setAccentColor(ACCENT_COLOR)
-      .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(
-          `## ${user.username}'s usernames\n-# ${usernames.length} archived`
-        )
-      )
+    const header = new TextDisplayBuilder().setContent(
+      `## ${user.username}'s usernames\n-# ${usernames.length} archived`
+    );
+    const container = new ContainerBuilder().setAccentColor(ACCENT_COLOR);
+    if (WEB_URL) {
+      container.addSectionComponents(
+        new SectionBuilder()
+          .addTextDisplayComponents(header)
+          .setButtonAccessory(
+            new ButtonBuilder().setLabel("Website").setStyle(ButtonStyle.Link).setURL(WEB_URL)
+          )
+      );
+    } else {
+      container.addTextDisplayComponents(header);
+    }
+    container
       .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join("\n")));
 
@@ -84,6 +95,6 @@ const sendUsernameHistory = async (interaction: CommandInteraction, user: User) 
         .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
         .addActionRowComponents(nav);
     }
-    return container;
+    return container.addTextDisplayComponents(promoFooter());
   }).start();
 };

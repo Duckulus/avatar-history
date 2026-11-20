@@ -1,4 +1,6 @@
 import { ApplicationCommandType, Routes } from "discord-api-types/v10";
+// the old discord-api-types devDependency predates user installs, discord.js re-exports a newer one
+import { ApplicationIntegrationType, InteractionContextType } from "discord.js";
 import { rest } from "../utils/rest";
 import { DISCORD_APPLICATION_ID } from "@avatar-history/env";
 import { logger } from "@avatar-history/logging";
@@ -13,6 +15,17 @@ export const commandMention = (name: string) => {
   return id ? `</${name}:${id}>` : `\`/${name}\``;
 };
 
+// Every command works in servers the bot is in, and, once a user added the app
+// to their account, in any server, DM and group DM.
+const availability = {
+  integration_types: [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
+  contexts: [
+    InteractionContextType.Guild,
+    InteractionContextType.BotDM,
+    InteractionContextType.PrivateChannel,
+  ],
+};
+
 export const overwriteCommands = async (commands: Command[]) => {
   const applicationCommands = commands.map((command) => {
     switch (command.type) {
@@ -22,11 +35,13 @@ export const overwriteCommands = async (commands: Command[]) => {
           description: (command as SlashCommand).description,
           options: (command as SlashCommand).options,
           type: ApplicationCommandType.ChatInput,
+          ...availability,
         };
       case ApplicationCommandType.User:
         return {
           name: command.name,
           type: ApplicationCommandType.User,
+          ...availability,
         };
     }
   });

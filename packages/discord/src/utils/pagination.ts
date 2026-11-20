@@ -36,7 +36,7 @@ export class Pagination {
     private readonly pageCount: number,
     private readonly render: PageRenderer,
     private readonly timeoutSeconds = 300,
-    private readonly ephemeral = true
+    private readonly ephemeral = false
   ) {}
 
   async start() {
