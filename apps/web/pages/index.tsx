@@ -91,7 +91,16 @@ const Home: NextPage<Props> = ({guildId, guildInvite}) => {
               <>
                 <div className={"section-head"}>
                   <h2>Your <span className={"gradient-text"}>avatars</span></h2>
-                  {avatars && <span className={"count"}>{avatars.length} archived</span>}
+                  {avatars && (
+                      <div className={"section-actions"}>
+                        <span className={"count"}>{avatars.length} archived</span>
+                        {avatars.length > 0 && (
+                            <a className={"btn btn-small"} href={"/api/avatars/download"} download>
+                              Download all (.zip)
+                            </a>
+                        )}
+                      </div>
+                  )}
                 </div>
                 {avatars && usernames ? (
                     <>

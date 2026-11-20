@@ -1256,3 +1256,9 @@ a.user-row:hover {
         font-size: 0.8rem;
     }
 }
+
+.section-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
