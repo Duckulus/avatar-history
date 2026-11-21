@@ -19,10 +19,13 @@ export interface SlashCommand extends Command {
   execute: (
     interaction: ChatInputCommandInteraction,
     command: ApplicationCommand
-  ) => void;
+  ) => void | Promise<void>;
   options: APIApplicationCommandOption[];
 }
 
 export interface UserCommand extends Command {
-  execute: (interaction: UserContextMenuCommandInteraction, user: User) => void;
+  execute: (
+    interaction: UserContextMenuCommandInteraction,
+    user: User
+  ) => void | Promise<void>;
 }

@@ -24,7 +24,16 @@ export const initCommands = async () => {
   await overwriteCommands(commands);
 };
 
+// A failed command must never take the bot down. The usual failure is
+// "Unknown interaction" (10062): Discord only accepts a reply within 3 seconds,
+// which a slow or overloaded host can miss.
 export const handleCommand = (interaction: CommandInteraction) => {
+  execute(interaction).catch((e) =>
+    logger.error(`Command '${interaction.commandName}' failed`, e)
+  );
+};
+
+const execute = async (interaction: CommandInteraction) => {
   const command = commands.find((cmd) => cmd.name == interaction.commandName);
   if (command) {
     switch (interaction.commandType) {
@@ -38,7 +47,7 @@ export const handleCommand = (interaction: CommandInteraction) => {
             })
             .join(" ")}]`
         );
-        (command as SlashCommand).execute(
+        await (command as SlashCommand).execute(
           interaction as ChatInputCommandInteraction,
           interaction.command!
         );
@@ -51,7 +60,7 @@ export const handleCommand = (interaction: CommandInteraction) => {
             (interaction as UserContextMenuCommandInteraction).targetUser.tag
           }`
         );
-        (command as UserCommand).execute(
+        await (command as UserCommand).execute(
           interaction as UserContextMenuCommandInteraction,
           (interaction as UserContextMenuCommandInteraction).targetUser
         );

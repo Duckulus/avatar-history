@@ -7,6 +7,7 @@ import {
   ContainerBuilder,
   MessageFlags,
 } from "discord.js";
+import { logger } from "@avatar-history/logging";
 
 // Accent color of the website
 export const ACCENT_COLOR = 0x8c84e0;
@@ -53,12 +54,17 @@ export class Pagination {
       time: this.timeoutSeconds * 1000,
     });
 
-    collector.on("collect", async (button) => {
+    // Errors here would be unhandled rejections, see handleCommand.
+    const onError = (e: unknown) => logger.error("Pagination button failed", e);
+
+    collector.on("collect", (button) => {
       if (button.user.id != this.interaction.user.id) {
-        await button.reply({
-          content: "Run the command yourself to browse this list.",
-          flags: MessageFlags.Ephemeral,
-        });
+        button
+          .reply({
+            content: "Run the command yourself to browse this list.",
+            flags: MessageFlags.Ephemeral,
+          })
+          .catch(onError);
         return;
       }
       switch (button.customId) {
@@ -75,7 +81,7 @@ export class Pagination {
           this.index = this.pageCount - 1;
           break;
       }
-      await button.update({ components: [this.page()] });
+      button.update({ components: [this.page()] }).catch(onError);
     });
 
     // remove the buttons once they stop working
